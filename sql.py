@@ -2,6 +2,8 @@ from sqlalchemy import create_engine,String,ForeignKey,Text,distinct,func,desc
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker,Mapped,mapped_column
 from typing_extensions import Annotated
+import pymysql
+pymysql.install_as_MySQLdb()
 
 
 engine=create_engine("mysql://root:y4hwong6@localhost/website",echo=False)
