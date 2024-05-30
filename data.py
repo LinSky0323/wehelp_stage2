@@ -1,5 +1,5 @@
 import json,re
-from sql import push_attraction,get_attraction_by_id,get_attraction_by_mrt,get_attraction_by_name,get_all_attraction
+from sql import push_attraction,get_attraction_by_id,get_attraction_by_mrt,get_attraction_by_name,get_all_attraction,get_mrt_list
 
 def create_db():
     with open("data/taipei-attractions.json",mode="r",encoding="utf-8") as file:
@@ -41,17 +41,16 @@ def get_some_data(page,keyword):
         list.append(data[i])
     return {"nextPage":nextPage,"data":list}
 def get_some_mrt():
-    data=get_all_attraction()
-    dict={}
+    data=get_mrt_list()
+    list=[]
     for item in data:
-        if item.mrt == None:
+        if not item:
             continue
-        if item.mrt in dict:
-            dict[item.mrt]+=1
-        else:
-            dict[item.mrt]=1
-    results=sorted(dict,key=dict.__getitem__,reverse=True)
-    return results
+        list.append(item[0])
+    return {"data":list}
+
+
+    
 
 
 

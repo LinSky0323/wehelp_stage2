@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine,String,ForeignKey,Text
+from sqlalchemy import create_engine,String,ForeignKey,Text,distinct,func,desc
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker,Mapped,mapped_column
 from typing_extensions import Annotated
@@ -11,6 +11,7 @@ int_pk=Annotated[int,mapped_column(primary_key=True,autoincrement=True)]
 nes_str=Annotated[str,mapped_column(String(255),unique=True,nullable=False)]
 nor_str=Annotated[str,mapped_column(String(1000),nullable=True)]
 nor_float=Annotated[float,mapped_column()]
+nor_int=Annotated[int,mapped_column()]
 long_str=Annotated[str,mapped_column(Text)]
 
 class Attraction(Base):
@@ -26,6 +27,7 @@ class Attraction(Base):
     lat:Mapped[nor_float]
     lng:Mapped[nor_float]
     images:Mapped[long_str]
+
 
 Base.metadata.create_all(engine)
 Session=sessionmaker(bind=engine)
@@ -47,6 +49,11 @@ def get_all_attraction():
         session.expunge_all()
     return data
 
+def get_mrt_list():
+    data=session.query(Attraction.mrt,func.count(Attraction.mrt)).group_by(Attraction.mrt).order_by(desc(func.count())).all()
+    if data:
+        session.expunge_all()
+    return data
     
 
 def get_attraction_by_id(id):
@@ -66,4 +73,3 @@ def get_attraction_by_name(keyword):
     if data:
         session.expunge_all()
     return data
-
