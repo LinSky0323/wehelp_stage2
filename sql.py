@@ -45,11 +45,6 @@ def push_attraction(nam,cat,des,add,tra,mr,la,ln,ima):
     session.commit()
     session.close()
 
-def get_all_attraction():
-    data=session.query(Attraction).all()
-    if data:
-        session.expunge_all()
-    return data
 
 def get_mrt_list():
     data=session.query(Attraction.mrt,func.count(Attraction.mrt)).group_by(Attraction.mrt).order_by(desc(func.count())).all()
@@ -64,14 +59,20 @@ def get_attraction_by_id(id):
         session.expunge(data)
     return data
 
-def get_attraction_by_mrt(keyword):
-    data = session.query(Attraction).filter(Attraction.mrt == keyword).all()
+def get_some_data(page,keyword):
+    if keyword == None:
+        data = session.query(Attraction)[12*page:12*page+12]
+        max_long = (session.query(func.count(Attraction.id)).one()[0])//12
+    elif keyword != None:
+        data = session.query(Attraction).filter(Attraction.mrt == keyword)[12*page:12*page+12]
+        max_long = (session.query(func.count(Attraction.id)).filter(Attraction.mrt == keyword).one()[0])//12
+    if not data and keyword != None:
+        data = session.query(Attraction).filter(Attraction.name.like("%"+keyword+"%"))[12*page:12*page+12]
+        max_long = (session.query(func.count(Attraction.id)).filter(Attraction.name.like("%"+keyword+"%")).one()[0])//12
     if data:
         session.expunge_all()
-    return data
+    nextPage = page+1
+    if nextPage > max_long:
+        nextPage = None
+    return data,nextPage
 
-def get_attraction_by_name(keyword):
-    data = session.query(Attraction).filter(Attraction.name.like("%"+keyword+"%")).all()
-    if data:
-        session.expunge_all()
-    return data

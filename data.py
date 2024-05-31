@@ -1,5 +1,5 @@
 import json,re
-from sql import push_attraction,get_attraction_by_id,get_attraction_by_mrt,get_attraction_by_name,get_all_attraction,get_mrt_list
+from sql import push_attraction,get_attraction_by_id,get_mrt_list,get_some_data
 
 def create_db():
     with open("data/taipei-attractions.json",mode="r",encoding="utf-8") as file:
@@ -20,26 +20,11 @@ def get_data_by_id(id):
     if data:
         data.images=data.images.split(",")
     return {"data":data}
-def get_some_data(page,keyword):
-    if not keyword:
-        data=get_all_attraction()
-    else:
-        data=get_attraction_by_mrt(keyword)
-    if not data:
-        data=get_attraction_by_name(keyword)
-    length=len(data)
-    max_page=length//12
-    list=[]
-    if page >= max_page or page < 0:
-        nextPage = None
-    else:
-        nextPage = page+1
-    for i in range(page*12,page*12+12):
-        if i >= length:
-            break
-        data[i].images=data[i].images.split(",")
-        list.append(data[i])
-    return {"nextPage":nextPage,"data":list}
+def get_data(page,keyword):
+    data = get_some_data(page,keyword)
+    for i in data[0]:
+        i.images=i.images.split(",")
+    return {"nextPage":data[1],"data":data[0]}
 def get_some_mrt():
     data=get_mrt_list()
     list=[]

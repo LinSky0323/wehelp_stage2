@@ -1,7 +1,7 @@
 from fastapi import *
 from fastapi.responses import FileResponse,JSONResponse
 from typing import Annotated
-from data import get_data_by_id,get_some_data,get_some_mrt
+from data import get_data_by_id,get_some_mrt,get_data
 app=FastAPI()
 
 # Static Pages (Never Modify Code in this Block)
@@ -22,7 +22,7 @@ async def thankyou(request: Request):
 @app.get("/api/attractions")
 def get_attraction(request:Request,page:int=0,keyword:Annotated[str,None]=None):
 	try:
-		data=get_some_data(page,keyword)
+		data=get_data(page,keyword)
 		return data
 	except:
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
