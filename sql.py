@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine,String,ForeignKey,Text,distinct,func,desc
+from sqlalchemy import create_engine,String,ForeignKey,Text,distinct,func,desc,Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker,Mapped,mapped_column
 from typing_extensions import Annotated
@@ -6,7 +6,7 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 
-engine=create_engine("mysql://root:y4hwong6@localhost/website",echo=False)
+engine=create_engine("mysql://root:y4hwong6@localhost/website",echo=True)
 Base=declarative_base()
 
 int_pk=Annotated[int,mapped_column(primary_key=True,autoincrement=True)]
@@ -25,10 +25,12 @@ class Attraction(Base):
     description:Mapped[long_str]
     address:Mapped[nor_str]
     transport:Mapped[nor_str]
-    mrt:Mapped[nor_str]
+    mrt:Mapped[str]=mapped_column(String(255),index=True,nullable=True)
     lat:Mapped[nor_float]
     lng:Mapped[nor_float]
     images:Mapped[long_str]
+
+
 
 
 Base.metadata.create_all(engine)
@@ -61,18 +63,17 @@ def get_attraction_by_id(id):
 
 def get_some_data(page,keyword):
     if keyword == None:
-        data = session.query(Attraction)[12*page:12*page+12]
-        max_long = (session.query(func.count(Attraction.id)).one()[0])//12
+        data = session.query(Attraction).limit(12).offset(page*12).all()
     elif keyword != None:
-        data = session.query(Attraction).filter(Attraction.mrt == keyword)[12*page:12*page+12]
-        max_long = (session.query(func.count(Attraction.id)).filter(Attraction.mrt == keyword).one()[0])//12
+        data = session.query(Attraction).filter(Attraction.mrt == keyword)[12*page:12*page+12] 
     if not data and keyword != None:
         data = session.query(Attraction).filter(Attraction.name.like("%"+keyword+"%"))[12*page:12*page+12]
-        max_long = (session.query(func.count(Attraction.id)).filter(Attraction.name.like("%"+keyword+"%")).one()[0])//12
     if data:
         session.expunge_all()
     nextPage = page+1
-    if nextPage > max_long:
+    if len(data) < 12:
         nextPage = None
     return data,nextPage
 
+
+  

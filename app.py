@@ -36,6 +36,7 @@ async def search_by_id(request:Request,attractionId:int):
 		return data
 	except :
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
+	
 
 @app.get("/api/mrts")
 async def get_mrts(request:Request):

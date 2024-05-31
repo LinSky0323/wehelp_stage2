@@ -35,8 +35,6 @@ def get_some_mrt():
     return {"data":list}
 
 
-    
-
 
 
 
