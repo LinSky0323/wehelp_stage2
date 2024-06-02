@@ -1,12 +1,13 @@
 from sqlalchemy import create_engine,String,ForeignKey,Text,distinct,func,desc,Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker,Mapped,mapped_column
+from sqlalchemy.pool import NullPool
 from typing_extensions import Annotated
 import pymysql
 pymysql.install_as_MySQLdb()
 
 
-engine=create_engine("mysql://root:y4hwong6@localhost/website",echo=True)
+engine=create_engine("mysql://root:y4hwong6@localhost/website",echo_pool="debug",echo=True,pool_recycle=28800)
 Base=declarative_base()
 
 int_pk=Annotated[int,mapped_column(primary_key=True,autoincrement=True)]
@@ -31,14 +32,13 @@ class Attraction(Base):
     images:Mapped[long_str]
 
 
-
-
 Base.metadata.create_all(engine)
 Session=sessionmaker(bind=engine)
 
 session=Session()
 
 def push_attraction(nam,cat,des,add,tra,mr,la,ln,ima):
+    session=Session()
     attraction=Attraction(
         name=nam,category=cat,description=des,
         address=add,transport=tra,mrt=mr,
@@ -50,15 +50,13 @@ def push_attraction(nam,cat,des,add,tra,mr,la,ln,ima):
 
 def get_mrt_list():
     data=session.query(Attraction.mrt,func.count(Attraction.mrt)).group_by(Attraction.mrt).order_by(desc(func.count())).all()
-    if data:
-        session.expunge_all()
+    session.close()
     return data
     
 
 def get_attraction_by_id(id):
     data = session.query(Attraction).filter(Attraction.id == id).first()
-    if data:
-        session.expunge(data)
+    session.close()
     return data
 
 def get_some_data(page,keyword):
@@ -68,8 +66,7 @@ def get_some_data(page,keyword):
         data = session.query(Attraction).filter(Attraction.mrt == keyword)[12*page:12*page+12] 
     if not data and keyword != None:
         data = session.query(Attraction).filter(Attraction.name.like("%"+keyword+"%"))[12*page:12*page+12]
-    if data:
-        session.expunge_all()
+    session.close()
     nextPage = page+1
     if len(data) < 12:
         nextPage = None
