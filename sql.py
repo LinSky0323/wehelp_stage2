@@ -7,7 +7,7 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 
-engine=create_engine("mysql://root:y4hwong6@localhost/website",echo_pool="debug",echo=True,pool_recycle=28800)
+engine=create_engine("mysql://root:密碼@localhost/website",echo_pool="debug",echo=True,pool_recycle=28800)
 Base=declarative_base()
 
 int_pk=Annotated[int,mapped_column(primary_key=True,autoincrement=True)]
