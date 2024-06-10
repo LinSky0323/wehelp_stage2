@@ -7,21 +7,22 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 app=FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app.mount("/static", StaticFiles(directory="public/static"), name="static")
+app.mount("/statics", StaticFiles(directory="public"), name="statics")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 
 # Static Pages (Never Modify Code in this Block)
 @app.get("/", include_in_schema=False)
 async def index(request: Request):
-	return FileResponse("./static/index.html", media_type="text/html")
+	return FileResponse("./public/index.html", media_type="text/html")
 @app.get("/attraction/{id}", include_in_schema=False)
 async def attraction(request: Request, id: int):
 	return FileResponse("./static/attraction.html", media_type="text/html")

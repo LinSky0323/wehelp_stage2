@@ -29,7 +29,7 @@ def get_some_mrt():
     data=get_mrt_list()
     list=[]
     for item in data:
-        if not item:
+        if not item[0] :
             continue
         list.append(item[0])
     return {"data":list}
