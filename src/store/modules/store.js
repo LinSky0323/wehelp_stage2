@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-
-const MrtUrl = "http://127.0.0.1:8000/api/mrts"
-const AttractionList = "http://127.0.0.1:8000/api/attractions"
+const URL ="http://13.114.168.77:8000/"
+const MrtUrl = URL+"api/mrts"
+const AttractionList = URL+"api/attractions"
 
 const attractionStore = createSlice({
     name:"attraction",
