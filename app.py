@@ -9,13 +9,13 @@ from fastapi.middleware.cors import CORSMiddleware
 app=FastAPI()
 app.mount("/static", StaticFiles(directory="public/static"), name="static")
 app.mount("/statics", StaticFiles(directory="public"), name="statics")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 
 

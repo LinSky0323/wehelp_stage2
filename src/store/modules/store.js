@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const URL ="http://13.114.168.77:8000/"
+const URL ="http://18.176.26.217 :8000/"
 const MrtUrl = URL+"api/mrts"
 const AttractionList = URL+"api/attractions"
 

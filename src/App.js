@@ -4,7 +4,7 @@ import { useDispatch,useSelector } from "react-redux"
 import { fetchAnotherList, fetchAttractionList, fetchMrtList, fetchNextData } from "./store/modules/store"
 import { useEffect,useRef,useState } from "react"
 
-const URL="http://13.114.168.77:8000/"
+const URL="http://18.176.26.217:8000/"
 
 
 const Header=()=>{
