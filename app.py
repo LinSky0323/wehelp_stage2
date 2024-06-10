@@ -7,8 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 app=FastAPI()
-app.mount("/static", StaticFiles(directory="public/static"), name="static")
-app.mount("/statics", StaticFiles(directory="public"), name="statics")
+app.mount("/static", StaticFiles(directory="build/static"), name="static")
+app.mount("/statics", StaticFiles(directory="build"), name="statics")
 # app.add_middleware(
 #     CORSMiddleware,
 #     allow_origins=["*"],
