@@ -1,8 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { useNavigate } from "react-router-dom";
 
-const URL ="http://18.176.26.217:8000/"
+const URL ="http://127.0.0.1:8000/"
 const MrtUrl = URL+"api/mrts"
 const AttractionList = URL+"api/attractions"
+const SpotUrl = URL+"api/attraction/"
+
 
 const attractionStore = createSlice({
     name:"attraction",
@@ -12,7 +15,9 @@ const attractionStore = createSlice({
         //景點列表
         attractionList:{nextPage:0,data:[]},
         //關鍵字
-        keyword:""
+        keyword:"",
+        //單獨景點
+        spot:{}
 
     },
     reducers:{
@@ -33,12 +38,14 @@ const attractionStore = createSlice({
         },
         setAnotherKeyword(state,action){
             state.keyword=action.payload;
+        },
+        getSpot(state,action){
+            state.spot=action.payload;
         }
-
 }})
 
 //異步執行
-const {setMrtList,setAttractionList,addAttractionList,setAnotherList,setAnotherKeyword} = attractionStore.actions
+const {setMrtList,setAttractionList,addAttractionList,setAnotherList,setAnotherKeyword,getSpot} = attractionStore.actions
 const fetchMrtList=()=>{
     return async (dispatch)=>{
         const res = await fetch(MrtUrl);
@@ -76,8 +83,20 @@ const fetchNextData =(page,keyword)=>{
         }
     }
 }
+const fetchSpot=(id)=>{
+    return async(dispatch)=>{
+        const res = await fetch(SpotUrl+id);
+        const jsonData = await res.json();
+        if(jsonData.hasOwnProperty("error")){
+            dispatch(getSpot(jsonData))
+        }
+        else{
+            dispatch(getSpot(jsonData.data))
+        }
+    }
+}
 //導出
-export {fetchMrtList,fetchAttractionList,fetchNextData,fetchAnotherList}
+export {fetchMrtList,fetchAttractionList,fetchNextData,fetchAnotherList,fetchSpot}
 
 const reducer = attractionStore.reducer
 
