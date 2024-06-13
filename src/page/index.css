@@ -439,11 +439,13 @@ body{
   .content__container{
     width:calc(100% - 20px);
   }
+  
 }
 
 @media(max-width:800px){
   .spot__container{
     flex-direction: column;
+    margin-top: 0;
   }
   .spot__img--container{
     width:100%;
@@ -461,6 +463,9 @@ body{
   }
   .spot__booking--btn{
     margin-bottom: 15px;
+  }
+  .header__container--border{
+    border:0;
   }
   
 }
