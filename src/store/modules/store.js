@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { useNavigate } from "react-router-dom";
+
 
 const URL ="http://18.176.26.217:8000/"
 const MrtUrl = URL+"api/mrts"
@@ -41,11 +41,14 @@ const attractionStore = createSlice({
         },
         getSpot(state,action){
             state.spot=action.payload;
+        },
+        clearSpot(state,action){
+            state.spot=action.payload
         }
 }})
 
 //異步執行
-const {setMrtList,setAttractionList,addAttractionList,setAnotherList,setAnotherKeyword,getSpot} = attractionStore.actions
+const {setMrtList,setAttractionList,addAttractionList,setAnotherList,setAnotherKeyword,getSpot,clearSpot} = attractionStore.actions
 const fetchMrtList=()=>{
     return async (dispatch)=>{
         const res = await fetch(MrtUrl);
@@ -96,7 +99,7 @@ const fetchSpot=(id)=>{
     }
 }
 //導出
-export {fetchMrtList,fetchAttractionList,fetchNextData,fetchAnotherList,fetchSpot}
+export {fetchMrtList,fetchAttractionList,fetchNextData,fetchAnotherList,fetchSpot,clearSpot}
 
 const reducer = attractionStore.reducer
 

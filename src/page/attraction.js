@@ -1,33 +1,43 @@
 import { useEffect,useState,useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { fetchSpot,getFalse } from "../store/modules/store"
+import { clearSpot, fetchSpot } from "../store/modules/store"
 import { useParams } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 
-const imgUrl="/statics"
+//統一修改圖片路境，為了應對開發環境跟build的靜態物件
+const imgUrl="/statics/"
+
+//景點物件，包含圖片、名稱、booking欄
 const Spot=()=>{
-    const [hoverImg,setHoverImg] = useState(0)
-    const [hoverTime,setHoverTime] = useState(2000)
-    const imgRef = useRef([])
-    const param = useParams()
-    const navigate = useNavigate()
-    let id = param.id;
-    const dispatch = useDispatch()
-    useEffect(()=>{
+    const [hoverImg,setHoverImg] = useState(0)  //狀態:當前圖片index
+    const [hoverTime,setHoverTime] = useState(2000) //狀態:當前的金額(順便對應上下午)
+    const imgRef = useRef([])   //定義ref
+    const param = useParams()   //定義router
+    const navigate = useNavigate()  //定義連結跳轉物件
+    let id = param.id; 
+    const dispatch = useDispatch()  //定義dispatch物件
+    useEffect(()=>{ //再跳轉到網頁或網址中ID被修改時 會重新抓資料到redux裡
         dispatch(fetchSpot(id));
     },[dispatch,id])
-    useEffect(()=>{
-        if(hoverImg !== null && imgRef.current[hoverImg]){
-            setTimeout(()=>{
-                imgRef.current[hoverImg].classList.add("active")
+    useEffect(()=>{ //切換圖片時做到display: none>block的動畫
+        if(imgRef.current[0]){  //用if確認渲染是否完成，避免初次導入網頁ref為空無法執行修正的錯誤
+            setTimeout(()=>{    //display無法動畫 利用opacity變更來讓tranlation運作
+                imgRef.current[hoverImg].classList.add("active"); 
             },0)
         } 
      })
-    const {spot} = useSelector(state=>state.attractions) 
+    const {spot} = useSelector(state=>state.attractions) //解構取得store裡的spot
+    useEffect(()=>{ //如果得到的spot是error:true 重新島回首頁
+        if(spot&&spot.error){   //避免初次載入報錯
+            dispatch(clearSpot({}))
+            navigate("/")
+        }
+    },[spot,navigate,dispatch])
     if(!spot || !spot.images){
-        return navigate("/")
+        return 
     }
     let max = spot.images.length  
+        //各種含式
     const clickLeft=()=>{
         if(hoverImg<=0){
             setHoverImg(max-1)
@@ -68,7 +78,7 @@ const Spot=()=>{
                 src={index === hoverImg ?(imgUrl+"/circle_current.png"):(imgUrl+"/circle.png")} alt="circle"/>)}
                 </div>
             </div>
-            <div className="spot__content--container">
+            <div className="spot__content--container" >
                 <div className="spot__name">{spot.name}</div>
                 <div className="spot__mrt">{spot.category} at {spot.mrt}</div>
                 <div className="spot__booking--container">
@@ -86,6 +96,8 @@ const Spot=()=>{
         </div>
     )
 }
+
+
 const Content=()=>{
     const {spot} = useSelector(state=>state.attractions)
     return(
