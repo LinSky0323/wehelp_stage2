@@ -1,7 +1,7 @@
 from fastapi import *
 from fastapi.responses import FileResponse,JSONResponse
 from typing import Annotated
-from data import get_data_by_id,get_some_mrt,get_data
+from data import get_data_by_id,get_some_mrt,get_data,register,login,get_current_user
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -61,3 +61,40 @@ async def get_mrts(request:Request):
 		return data
 	except:
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
+	
+
+@app.post("/api/user")
+async def reg(request:Request,name:str,email:str,password:str):
+	try:
+		data = register(name,email,password)
+		if data.get("error"):
+			return JSONResponse(status_code=400,content=data)
+		return data
+	except:
+		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
+	
+
+@app.get("/api/user/auth")
+async def get_user(request:Request):
+	authorization:str = request.headers.get("Authorization")
+	if not authorization or not authorization.startswith("Bearer "):
+		return None
+	try:
+		data = get_current_user(authorization.split(" ")[1])
+		return data
+	except:
+		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
+
+
+@app.put("/api/user/auth")
+async def log(request:Request,email:str,password:str):
+	try:
+		data = login(email,password)
+		if data.get("error"):
+			return JSONResponse(status_code=400,content=data)
+		return data
+	except:
+		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
+
+
+

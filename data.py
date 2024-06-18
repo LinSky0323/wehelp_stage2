@@ -1,5 +1,12 @@
 import json,re
-from sql import push_attraction,get_attraction_by_id,get_mrt_list,get_some_data
+from sql import push_attraction,get_attraction_by_id,get_mrt_list,get_some_data,reg_user,login_user
+import jwt
+from datetime import datetime,timezone,timedelta
+
+ALGOEITHM = "HS256"
+PW_SECRET = "gukhlawrukgh"
+TK_SECRET = "skdjgh354wriaghn"
+
 
 #創建DB
 def create_db():
@@ -40,6 +47,38 @@ def get_some_mrt():
             continue
         list.append(item[0])
     return {"data":list}
+
+#註冊帳號
+def register(name,email,password):
+    encoding_password = jwt.encode({"password":password},PW_SECRET,algorithm=ALGOEITHM)
+    user = reg_user(name,email,encoding_password)
+    return user
+
+#登入
+def login(email,password):
+    encoding_password = jwt.encode({"password":password},PW_SECRET,algorithm=ALGOEITHM)
+    user = login_user(email,encoding_password)
+    if user.get("error"):
+        return user
+    token_time = datetime.now(timezone.utc) + timedelta(days=7)
+    token_data = {
+        **user,
+        "exp":token_time
+    }
+    token = jwt.encode(token_data,TK_SECRET,algorithm=ALGOEITHM)
+    return {"token":token}
+
+#確認當前用戶
+def get_current_user(token):
+    try:
+        data = jwt.decode(token,TK_SECRET,algorithms=[ALGOEITHM])
+        decode_time = datetime.fromtimestamp(data["exp"],timezone.utc)
+        if decode_time < datetime.now(timezone.utc):
+            return None
+        result={"data":{"id":data["id"],"name":data["name"],"email":data["email"]}}
+        return result
+    except:
+        return None
 
 
 

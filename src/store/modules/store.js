@@ -1,10 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { MrtUrl,AttractionList,SpotUrl,UserUrl } from "../../page/apiUrl";
 
 
-const URL ="http://18.176.26.217:8000/"
-const MrtUrl = URL+"api/mrts"
-const AttractionList = URL+"api/attractions"
-const SpotUrl = URL+"api/attraction/"
 
 
 const attractionStore = createSlice({
@@ -17,8 +14,11 @@ const attractionStore = createSlice({
         //關鍵字
         keyword:"",
         //單獨景點
-        spot:{}
-
+        spot:{},
+        //顯示登入窗
+        rlWindow:false,
+        //當前使用者資訊
+        currentUser:{}
     },
     reducers:{
         setMrtList(state,action){
@@ -44,11 +44,23 @@ const attractionStore = createSlice({
         },
         clearSpot(state,action){
             state.spot=action.payload
+        },
+        openRL(state){
+            state.rlWindow=true
+        },
+        closeRL(state){
+            state.rlWindow=false
+        },
+        setCurrentUser(state,action){
+            state.currentUser = action.payload
+        },
+        clearCurrentUser(state){
+            state.currentUser = {}
         }
 }})
 
 //異步執行
-const {setMrtList,setAttractionList,addAttractionList,setAnotherList,setAnotherKeyword,getSpot,clearSpot} = attractionStore.actions
+const {setMrtList,setAttractionList,addAttractionList,setAnotherList,setAnotherKeyword,getSpot,clearSpot,openRL,closeRL,setCurrentUser,clearCurrentUser} = attractionStore.actions
 const fetchMrtList=()=>{
     return async (dispatch)=>{
         const res = await fetch(MrtUrl);
@@ -74,16 +86,10 @@ const fetchAnotherList=(page,keyword)=>{
 
 const fetchNextData =(page,keyword)=>{
     return async(dispatch)=> {
-        if(keyword){
             const res = await fetch(AttractionList+`?page=${page}&keyword=${keyword}`);
             const jsonData = await res.json();
             dispatch(addAttractionList(jsonData))
-        }
-        else{
-            const res = await fetch(AttractionList+`?page=${page}`);
-            const jsonData = await res.json();
-            dispatch(addAttractionList(jsonData))
-        }
+        
     }
 }
 const fetchSpot=(id)=>{
@@ -98,8 +104,21 @@ const fetchSpot=(id)=>{
         }
     }
 }
+const fetchUser=(token)=>{
+    return async(dispatch)=>{
+        const res = await fetch(UserUrl,{method:"GET",headers:{"Authorization":"Bearer "+token}})
+        const data = await res.json()
+        if(data){
+            dispatch(setCurrentUser(data.data))
+        }
+        else{
+            dispatch(clearCurrentUser())
+        }
+        
+    }
+}
 //導出
-export {fetchMrtList,fetchAttractionList,fetchNextData,fetchAnotherList,fetchSpot,clearSpot}
+export {fetchMrtList,fetchAttractionList,fetchNextData,fetchAnotherList,fetchSpot,clearSpot,openRL,closeRL,fetchUser,clearCurrentUser}
 
 const reducer = attractionStore.reducer
 

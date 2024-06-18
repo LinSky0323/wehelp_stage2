@@ -3,9 +3,8 @@ import { useDispatch,useSelector } from "react-redux"
 import { fetchAnotherList, fetchMrtList, fetchNextData } from "../store/modules/store"
 import { useEffect,useRef,useState } from "react"
 import { useNavigate } from "react-router-dom"
-
-//統一修改靜態圖片的網址
-const imgUrl="/statics/"
+//統一修改圖片路境，為了應對開發環境跟build的靜態物件
+import {imgUrl} from "./apiUrl"
 
 const Title=()=>{
     const searchRef = useRef(null); //拿到輸入框
@@ -91,6 +90,7 @@ const Title=()=>{
     const navigate = useNavigate()
     const {attractionList,keyword} = useSelector(state => state.attractions)
     const observeRef = useRef()
+    const currentObserveRef = useRef()
 
     //---------------------舊操作：監控scroll 
     // useEffect(()=>{
@@ -119,32 +119,41 @@ const Title=()=>{
 
     //-----------新操作IntersectionObserver
     useEffect(()=>{
-      let current_observer = null;  //建立空的觀察者
-      if(observeRef && attractionList){ //避免第一次渲染ref沒人
+      if(observeRef && attractionList.data){ //避免第一次渲染ref沒人
         if(attractionList.nextPage === null)return ;  //最後一頁不做事
-        current_observer = new IntersectionObserver((entries)=>{
+        currentObserveRef.current = new IntersectionObserver((entries)=>{
           entries.forEach(entry=>{
             if(entry.isIntersecting){
               dispatch(fetchNextData(attractionList.nextPage,keyword))
-              current_observer.disconnect() //結束這次觀察，避免重複觸發重複觀察
+              currentObserveRef.current.disconnect() //結束這次觀察，避免重複觸發重複觀察
+              currentObserveRef.current = null;
             }
           })})
-        current_observer.observe(observeRef.current)  //開始觀察
+          currentObserveRef.current.observe(observeRef.current)  //開始觀察
         }
+      return()=>{     //確保卸載
+        if(currentObserveRef.current){
+          currentObserveRef.current.disconnect();
+          currentObserveRef.current=null;
+        }
+      }
     },[attractionList,dispatch,keyword])
-    return(
+    if(attractionList && attractionList.data){
+      return(
       
-      <div className="attractions">
-        {/* 12個框框 */}
-        {attractionList&&attractionList.data &&attractionList.data.map(item=><div key={item.id}  className="attractions__card"
-          onClick={()=>navigate(`/attraction/${item.id}`)}>
-          <div className="attractions__img"><img src={item.images[0]} alt={item.name}/><div className="attractions__name"><span>{item.name}</span></div></div>
-          <div className="attractions__des"><span>{item.mrt?item.mrt:"無"}</span><span>{item.category}</span></div>
-        </div>)}
-        <div ref={observeRef}></div>
-      </div>
-      
-    )
+        <div className="attractions">
+          {/* 12個框框 */}
+          {attractionList.data.map(item=><div key={item.id}  className="attractions__card"
+            onClick={()=>navigate(`/attraction/${item.id}`)}>
+            <div className="attractions__img"><img src={item.images[0]} alt={item.name}/><div className="attractions__name"><span>{item.name}</span></div></div>
+            <div className="attractions__des"><span>{item.mrt?item.mrt:"無"}</span><span>{item.category}</span></div>
+          </div>)}
+          <div ref={observeRef}></div>
+        </div>
+        
+      )
+    }
+    
   }
   
   function App() {

@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from "react-redux"
 import { clearSpot, fetchSpot } from "../store/modules/store"
 import { useParams } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
-
 //統一修改圖片路境，為了應對開發環境跟build的靜態物件
-const imgUrl="/statics/"
+import { imgUrl } from "./apiUrl"
+
+
 
 //景點物件，包含圖片、名稱、booking欄
 const Spot=()=>{
