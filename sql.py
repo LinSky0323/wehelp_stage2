@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine,String,ForeignKey,Text,distinct,func,desc,Index
+from sqlalchemy import create_engine,String,ForeignKey,Text,distinct,func,desc,Index,Boolean,Integer,text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker,Mapped,mapped_column
 from sqlalchemy.pool import NullPool
@@ -41,12 +41,17 @@ class User(Base):
     name:Mapped[str]=mapped_column(String(255),nullable=False,index=True,unique=True)
     email:Mapped[str]=mapped_column(String(255),nullable=False,index=True,unique=True)
     password:Mapped[str]=mapped_column(String(255),nullable=False)
+    active:Mapped[bool]=mapped_column(Boolean,default=False,nullable=False)
+    ckeckNum:Mapped[int]=mapped_column(Integer,nullable=True,default=0)
 
 #建立session
 Base.metadata.create_all(engine)
 Session=sessionmaker(bind=engine)
 
 session=Session()
+
+session.execute(text("SET sql_safe_updates = 0"))
+session.commit()
 
 #添加資料到table中
 def push_attraction(nam,cat,des,add,tra,mr,la,ln,ima):
@@ -107,4 +112,18 @@ def login_user(email,password):
     session.close()
     return {"id":pw.id,"name":pw.name,"email":pw.email}
 
+# #修改隨機驗證碼
+# def create_checkNum(email,num):
+#     session.query(User).filter(User.email==email).update({User.ckeckNum:num})
+#     session.commit()
+#     session.close()
+
+# #確認是否一致>啟用
+# def get_active(email,num):
+#     data=session.query(User).filter(User.email == email,User.ckeckNum == num).update({User.active:True})
+#     if data:
+#         session.query(User).filter(User.email == email,User.active == True).update({User.ckeckNum:0})
+#     session.commit()
+#     session.close()
+#     return {"active":data}
 

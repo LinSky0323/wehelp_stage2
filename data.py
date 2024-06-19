@@ -1,7 +1,8 @@
-import json,re
+import json,re,random
 from sql import push_attraction,get_attraction_by_id,get_mrt_list,get_some_data,reg_user,login_user
 import jwt
 from datetime import datetime,timezone,timedelta
+# from mail import send_check_email
 
 ALGOEITHM = "HS256"
 PW_SECRET = "gukhlawrukgh"
@@ -79,6 +80,13 @@ def get_current_user(token):
         return result
     except:
         return None
+
+#生成寄送驗證碼
+# def create_send_checkNum(email):
+#     rand = random.randint(100000,999999)
+#     create_checkNum(email,rand)
+#     send_check_email(email,rand)
+
 
 
 

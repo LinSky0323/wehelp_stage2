@@ -24,8 +24,9 @@ const attractionStore = createSlice({
         setMrtList(state,action){
             state.mrtList = action.payload
         },
-        setAttractionList(state,action){
-            state.attractionList = action.payload
+        resetAttraction(state){
+            state.attractionList ={nextPage:0,data:[]}
+            state.keyword = ""
         },
         //把下一頁的資料add進去
         addAttractionList(state,action){
@@ -60,7 +61,7 @@ const attractionStore = createSlice({
 }})
 
 //異步執行
-const {setMrtList,setAttractionList,addAttractionList,setAnotherList,setAnotherKeyword,getSpot,clearSpot,openRL,closeRL,setCurrentUser,clearCurrentUser} = attractionStore.actions
+const {setMrtList,resetAttraction,addAttractionList,setAnotherList,setAnotherKeyword,getSpot,clearSpot,openRL,closeRL,setCurrentUser,clearCurrentUser} = attractionStore.actions
 const fetchMrtList=()=>{
     return async (dispatch)=>{
         const res = await fetch(MrtUrl);
@@ -69,13 +70,7 @@ const fetchMrtList=()=>{
 
     }
 }
-const fetchAttractionList =()=>{
-    return async (dispatch)=>{
-        const res = await fetch(AttractionList);
-        const jsonData = await res.json();
-        dispatch(setAttractionList(jsonData))
-    }
-}
+
 const fetchAnotherList=(page,keyword)=>{
     return async(dispatch)=>{
         const res = await fetch(AttractionList+`?page=${page}&keyword=${keyword}`);
@@ -118,7 +113,7 @@ const fetchUser=(token)=>{
     }
 }
 //導出
-export {fetchMrtList,fetchAttractionList,fetchNextData,fetchAnotherList,fetchSpot,clearSpot,openRL,closeRL,fetchUser,clearCurrentUser}
+export {fetchMrtList,resetAttraction,fetchNextData,fetchAnotherList,fetchSpot,clearSpot,openRL,closeRL,fetchUser,clearCurrentUser}
 
 const reducer = attractionStore.reducer
 

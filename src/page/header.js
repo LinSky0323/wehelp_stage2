@@ -2,7 +2,7 @@ import "./index.css"
 import { useEffect, useState,useRef } from "react"
 import { Outlet } from "react-router-dom"
 import { useDispatch,useSelector } from "react-redux"
-import { fetchUser,clearCurrentUser, openRL, closeRL } from "../store/modules/store"
+import { fetchUser,clearCurrentUser, openRL, closeRL,resetAttraction } from "../store/modules/store"
 import { useLocation,useNavigate } from "react-router-dom"
 //統一修改圖片路境，為了應對開發環境跟build的靜態物件
 import {imgUrl,RegUrl,UserUrl} from "./apiUrl"
@@ -14,6 +14,7 @@ const Footer=()=>{
   }
 
 const R_L=()=>{
+  const emailRule = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
   const [login,setLogin] = useState("login")    //登入框內容是什麼
   const [username,setUsername] = useState("")
   const [email,setEmail] = useState("")
@@ -24,6 +25,7 @@ const R_L=()=>{
   const location = useLocation()
   const errorInfRef = useRef(null)          //錯誤訊息(或登入成功的提示)，只顯示2S
   const btnRef = useRef(null)
+  const spaceRef = useRef(null)
   const clickRLclose=()=>{    //關閉登入框並重製裡面的資訊
     dispatch(closeRL())
     setLogin("login")
@@ -32,15 +34,19 @@ const R_L=()=>{
     setUsername("")
   }
   const toReg=()=>{           //切換至註冊
+    spaceRef.current.innerText = "不能空白喔！"
+    spaceRef.current.style.display="none"
     setLogin("reg")
   }
   const toLogin=()=>{         //切換至登入
+    spaceRef.current.innerText = "不能空白喔！"
+    spaceRef.current.style.display="none"
     setLogin("login")
   }
   
   const clickLogin=()=>{      //函式：發送登入
     async function log(email,password){   
-      const res = await fetch(UserUrl+`?email=${email}&password=${password}`,{method:"PUT"})
+      const res = await fetch(UserUrl,{method:"PUT",body:JSON.stringify({"email":email,"password":password})})
       const data = await res.json()
       if(data.hasOwnProperty("error")){
         errorInfRef.current.classList.add("rl__errorInf--open")
@@ -64,7 +70,24 @@ const R_L=()=>{
         },3000)
       }
     }
-    if(email && password){
+    if(!email){
+      spaceRef.current.innerText = "不能空白喔！"
+      spaceRef.current.style.display = "flex"
+      spaceRef.current.style.top = "90px"
+    }
+    else if(!emailRule.test(email)){ 
+      spaceRef.current.innerText ="請輸入信箱格式！"
+      spaceRef.current.style.display = "flex"
+      spaceRef.current.style.top = "90px"
+    }
+    else if(!password){
+      spaceRef.current.innerText = "不能空白喔！"
+      spaceRef.current.style.display = "flex"
+      spaceRef.current.style.top = "147px"
+    }
+    else{
+      spaceRef.current.innerText = "不能空白喔！"
+      spaceRef.current.style.display="none"
       log(email,password)
     }
     
@@ -72,8 +95,13 @@ const R_L=()=>{
   
   const clickReg=()=>{        //函式：發送註冊
     async function reg(username,email,password){
-      const res = await fetch(RegUrl+`?name=${username}&email=${email}&password=${password}`,{
-        method:"POST"
+      const res = await fetch(RegUrl,{
+        method:"POST",
+        body:JSON.stringify({
+          "name":username,
+          "email":email,
+          "password":password
+        })
         })
       const data = await res.json();
       console.log(data)
@@ -97,7 +125,29 @@ const R_L=()=>{
         },2000)
       }
     }
-    if(email && password && username ){
+    if(!username){
+      spaceRef.current.innerText = "不能空白喔！"
+      spaceRef.current.style.display="flex"
+      spaceRef.current.style.top="90px"
+    }
+    else if(!email){
+      spaceRef.current.innerText = "不能空白喔！"
+      spaceRef.current.style.display="flex"
+      spaceRef.current.style.top="147px"
+    }
+    else if(!emailRule.test(email)){
+      spaceRef.current.innerText = "請輸入信箱格式！"
+      spaceRef.current.style.display="flex"
+      spaceRef.current.style.top="147px"
+    }
+    else if(!password){
+      spaceRef.current.innerText = "不能空白喔！"
+      spaceRef.current.style.display="flex"
+      spaceRef.current.style.top="204px"
+    }
+    else {
+      spaceRef.current.innerText = "不能空白喔！"
+      spaceRef.current.style.display="none"
       reg(username,email,password)
     }
   }
@@ -116,6 +166,7 @@ const R_L=()=>{
     return(
       <div className="rl__background">
         <div className="rl__container">
+          <div className="rl__input--space" ref={spaceRef}>不能空白喔！</div> 
           <img src={(location.pathname.includes("attraction")||location.pathname.includes("booking"))?imgUrl+"/icon_close.png":imgUrl+"icon_close.png"} className="rl__close" onClick={clickRLclose} alt="X"/>
           <div className="rl__topbar"></div>
           <div >
@@ -186,11 +237,15 @@ const Header=()=>{
       dispatch(fetchUser(token))
     },[dispatch])
     const {currentUser} = useSelector(state=>state.attractions)
+    const toHome=()=>{        //回首頁 自動重製首頁的景點列表
+      dispatch(resetAttraction())
+      navigate("/")
+    }
     return(
     <div className="body">
         <div className={`header__container ${(location.pathname.includes("attraction")||location.pathname.includes("booking")) && "header__container--border"} `}>
             <div className="header">
-            <div className="header__homepage" onClick={()=>navigate("/")}>台北一日遊</div>
+            <div className="header__homepage" onClick={toHome}>台北一日遊</div>
             <div className="header__login">
                 <span>預定行程</span>
                 <span onClick={clickRL}>{currentUser.name?"登出帳號":"登入/註冊"}</span>

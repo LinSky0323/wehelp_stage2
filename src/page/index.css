@@ -67,7 +67,6 @@ body{
 }
 
 .title{
-  margin-top: 54px;
   position: relative;
   width:100%;
   display: flex;
@@ -430,6 +429,25 @@ body{
   box-shadow: 0px 4px 60px rgba(170,170,170,1);
   color:rgba(102,102,102,1);
   position: relative;
+}
+.rl__input--space{
+  position: absolute;
+  /* top:204px; */
+  right:15px;
+  color:red;
+  font-weight: 700;
+  font-size: 14px;
+  display:none;
+  align-items: center;
+}
+
+.rl__input--space::before{
+  content: "";
+  width:0px;
+  height: 0px;
+  margin-right:5px ;
+  border:transparent 5px solid;
+  border-right: 10px solid red;
 }
 .rl__topbar{
   background: linear-gradient(to left,rgba(51,119,136,1),rgba(102,170,187,1));

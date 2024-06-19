@@ -64,15 +64,20 @@ async def get_mrts(request:Request):
 	
 
 @app.post("/api/user")
-async def reg(request:Request,name:str,email:str,password:str):
+async def reg(request:Request):
+	body = await request.json()
+	name = body.get("name")
+	email = body.get("email")
+	password = body.get("password")
 	try:
 		data = register(name,email,password)
 		if data.get("error"):
 			return JSONResponse(status_code=400,content=data)
+		# create_send_checkNum(email)
 		return data
 	except:
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
-	
+
 
 @app.get("/api/user/auth")
 async def get_user(request:Request):
@@ -87,7 +92,10 @@ async def get_user(request:Request):
 
 
 @app.put("/api/user/auth")
-async def log(request:Request,email:str,password:str):
+async def log(request:Request):
+	body = await request.json()
+	email = body.get("email")
+	password = body.get("password")
 	try:
 		data = login(email,password)
 		if data.get("error"):
