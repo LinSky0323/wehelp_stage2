@@ -17,5 +17,3 @@ def send_check_email(Email,num):
     server.login("lin3hwong6@gmail.com","wpaz tffz jbng xuro")
     server.send_message(msg)
     server.close()
-
-send_check_email("a3822584@gmail.com",123456)

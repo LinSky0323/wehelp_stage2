@@ -1,5 +1,6 @@
 import json,re,random
-from sql import push_attraction,get_attraction_by_id,get_mrt_list,get_some_data,reg_user,login_user
+from sql import push_attraction,get_attraction_by_id,get_mrt_list,get_some_data,reg_user,login_user,create_checkNum,get_active
+from mail import send_check_email
 import jwt
 from datetime import datetime,timezone,timedelta
 # from mail import send_check_email
@@ -61,6 +62,8 @@ def login(email,password):
     user = login_user(email,encoding_password)
     if user.get("error"):
         return user
+    if not user["active"]:
+        return {"unactive":True}
     token_time = datetime.now(timezone.utc) + timedelta(days=7)
     token_data = {
         **user,
@@ -82,10 +85,16 @@ def get_current_user(token):
         return None
 
 #生成寄送驗證碼
-# def create_send_checkNum(email):
-#     rand = random.randint(100000,999999)
-#     create_checkNum(email,rand)
-#     send_check_email(email,rand)
+def create_send_checkNum(email):
+    rand = random.randint(100000,999999)
+    create_checkNum(email,rand)
+    send_check_email(email,rand)
+
+#驗證照號及驗證碼
+def check_checkNum(email,num):
+    data=get_active(email,num)
+    return data
+
 
 
 

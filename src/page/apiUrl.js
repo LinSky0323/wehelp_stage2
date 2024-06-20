@@ -8,4 +8,5 @@ const SpotUrl = URL+"api/attraction/"
 const RegUrl = URL+"api/user"
 const UserUrl = URL+"api/user/auth"
 
+
 export{imgUrl,MrtUrl,AttractionList,SpotUrl,RegUrl,UserUrl} 

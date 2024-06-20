@@ -1,7 +1,7 @@
 from fastapi import *
 from fastapi.responses import FileResponse,JSONResponse
 from typing import Annotated
-from data import get_data_by_id,get_some_mrt,get_data,register,login,get_current_user
+from data import get_data_by_id,get_some_mrt,get_data,register,login,get_current_user,create_send_checkNum,check_checkNum
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -73,7 +73,7 @@ async def reg(request:Request):
 		data = register(name,email,password)
 		if data.get("error"):
 			return JSONResponse(status_code=400,content=data)
-		# create_send_checkNum(email)
+		create_send_checkNum(email)
 		return data
 	except:
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
@@ -100,9 +100,39 @@ async def log(request:Request):
 		data = login(email,password)
 		if data.get("error"):
 			return JSONResponse(status_code=400,content=data)
+		if data.get("unactive"):
+			return {"unactive":True}
 		return data
 	except:
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
 
+@app.put("/api/user")
+async def reg(request:Request):
+	body = await request.json()
+	num = body.get("num")
+	email = body.get("email")
+	password = body.get("password")
+	res = check_checkNum(email,num)
+	if res.get("active") is 0:
+		return {"unactive":True}
+	elif res.get("active"):
+		try:
+			data = login(email,password)
+			if data.get("error"):
+				return JSONResponse(status_code=400,content=data)
+			if data.get("unactive"):
+				return {"unactive":True}
+			return data
+		except:
+			return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
 
+@app.post("/api/user/auth")
+async def recheck(request:Request):
+	body = await request.json()
+	email = body.get("email")
+	try:
+		create_send_checkNum(email)
+		return {"recheck":"true"}
+	except:
+		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
 

@@ -8,7 +8,7 @@ pymysql.install_as_MySQLdb()
 
 #建立連線到mysql的engine
 #pool_recycle:讓connecttion pool時間到自動重建，避免過期遺失連線造成錯誤
-engine=create_engine("mysql://root:密碼@localhost/website",echo=False,pool_recycle=28800)  #可以加 echo_pool="debug" 去除錯
+engine=create_engine("mysql://root:密碼@localhost/website",echo_pool="debug",echo=False,pool_recycle=21600)  #可以加 echo_pool="debug" 去除錯
 Base=declarative_base()
 
 #事先定義好column類型
@@ -110,20 +110,20 @@ def login_user(email,password):
     if not pw:
         return {"error":True,"message":"密碼打錯喔~~ 你是不是打錯字咧"}
     session.close()
-    return {"id":pw.id,"name":pw.name,"email":pw.email}
+    return {"id":pw.id,"name":pw.name,"email":pw.email,"active":pw.active}
 
-# #修改隨機驗證碼
-# def create_checkNum(email,num):
-#     session.query(User).filter(User.email==email).update({User.ckeckNum:num})
-#     session.commit()
-#     session.close()
+#修改隨機驗證碼
+def create_checkNum(email,num):
+    session.query(User).filter(User.email==email).update({User.ckeckNum:num})
+    session.commit()
+    session.close()
 
-# #確認是否一致>啟用
-# def get_active(email,num):
-#     data=session.query(User).filter(User.email == email,User.ckeckNum == num).update({User.active:True})
-#     if data:
-#         session.query(User).filter(User.email == email,User.active == True).update({User.ckeckNum:0})
-#     session.commit()
-#     session.close()
-#     return {"active":data}
+#確認是否一致>啟用
+def get_active(email,num):
+    data=session.query(User).filter(User.email == email,User.ckeckNum == num).update({User.active:True})
+    if data:
+        session.query(User).filter(User.email == email,User.active == True).update({User.ckeckNum:0})
+    session.commit()
+    session.close()
+    return {"active":data}
 

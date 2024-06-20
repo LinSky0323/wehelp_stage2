@@ -19,6 +19,7 @@ const R_L=()=>{
   const [username,setUsername] = useState("")
   const [email,setEmail] = useState("")
   const [password,setPassword] = useState("")
+  const [checknum,setChecknum] = useState(new Array(6).fill(''))
   const [inf,setInf] = useState("")             //訊息
   const dispatch = useDispatch()
   const {rlWindow,currentUser} = useSelector(state=>state.attractions)  //是否顯示登入框&當前使用者資訊
@@ -26,6 +27,7 @@ const R_L=()=>{
   const errorInfRef = useRef(null)          //錯誤訊息(或登入成功的提示)，只顯示2S
   const btnRef = useRef(null)
   const spaceRef = useRef(null)
+  const checkRef = useRef([])
   const clickRLclose=()=>{    //關閉登入框並重製裡面的資訊
     dispatch(closeRL())
     setLogin("login")
@@ -55,6 +57,10 @@ const R_L=()=>{
         setTimeout(()=>{
           errorInfRef.current.classList.remove("rl__errorInf--open")
         },2000)
+      }
+      else if(data.hasOwnProperty("unactive")){
+        setLogin("unactive")
+        setInf("")
       }
       else if(data.hasOwnProperty("token")){
         setLogin("login_ok")
@@ -113,16 +119,12 @@ const R_L=()=>{
           errorInfRef.current.classList.remove("rl__errorInf--open")
         },2000)
       }
-      else if(data.hasOwnProperty("ok")){
-        errorInfRef.current.classList.add("rl__errorInf--open")
-        setLogin("login")
-        setInf("恭喜你~成功註冊了一個帳號")
+      else if(data.hasOwnProperty("ok")){ 
+        setLogin("reg_ok")
+        setInf("驗證信已寄出，請於第一次登入時輸入驗證碼")
         setEmail("")
         setPassword("")
         setUsername("")
-        setTimeout(()=>{
-          errorInfRef.current.classList.remove("rl__errorInf--open")
-        },2000)
       }
     }
     if(!username){
@@ -156,12 +158,72 @@ const R_L=()=>{
     dispatch(clearCurrentUser())
     dispatch(closeRL())
   }
-  const send=(e)=>{
+  const send=(e)=>{           //函試：按enter等於點btn
     if(e.key==="Enter"){
       btnRef.current.click()
     }
   }
-
+  const clickCheck=()=>{      //函試：送出驗證碼
+    async function checkNum(){
+      let num = "";
+      for(let i in checknum){
+        num+=checknum[i]
+      }
+      const res = await fetch(RegUrl,{
+        method:"PUT",
+        body:JSON.stringify({"num":num,"email":email,"password":password})})
+      const data=await res.json()
+      if(data.hasOwnProperty("unactive")){
+        errorInfRef.current.classList.add("rl__errorInf--open")
+        setInf("驗證碼輸入錯誤")
+        setTimeout(()=>{
+          errorInfRef.current.classList.remove("rl__errorInf--open")
+        },2000)
+      }
+      else if(data.hasOwnProperty("token")){
+        setLogin("login_ok")
+        setInf("歡迎光臨,網頁將在3秒後返回您剛剛使用的頁面")
+        setEmail("")
+        setPassword("")
+        setUsername("")
+        localStorage.setItem("token",data.token)
+        dispatch(fetchUser(data.token))
+        setTimeout(()=>{
+          dispatch(closeRL())
+          setLogin("login")
+        },3000)
+      }
+      setChecknum(new Array(6).fill(''))
+      checkRef.current[0].focus()
+    }
+    checkNum()
+  }
+  const reCheck=()=>{         //函試：重寄一次驗證碼
+    async function recheck(){
+      const res = await fetch(UserUrl,{
+        method:"POST",
+        body:JSON.stringify({
+          "email":email
+        })
+      })
+      const data = await res.json()
+      if(data.hasOwnProperty("recheck")){
+        setInf("驗證信已送出，請查收")
+        errorInfRef.current.classList.add("rl__errorInf--open")
+        setTimeout(()=>{
+          errorInfRef.current.classList.remove("rl__errorInf--open")
+        },2000)
+      }
+    }
+    recheck()
+  }
+  const changeCheckNum=(value,i)=>{       //函試：6格驗證碼的修改
+    let newnum = [...checknum]
+    newnum[i]=value;
+    setChecknum(newnum);
+    if(i<5){checkRef.current[i+1].focus()}
+    newnum = null;
+  }
   if(rlWindow){
     return(
       <div className="rl__background">
@@ -217,6 +279,30 @@ const R_L=()=>{
               <div className="rl__inf">你是否要登出帳號？</div>
               <button className="rl__btn rl__btn--spe" onClick={signout}
               >登出</button>
+            </div>}
+            {(login==="unactive")&&
+            <div>
+              <div className="rl__title">第一次登入請輸入驗證碼</div>
+              <div className="rl__checkboxcontainer">
+              {[0,1,2,3,4,5].map((item,index)=>index===0?
+              <input key={index} type="text" maxLength={1} value={checknum[index]}
+              onChange={(e)=>changeCheckNum(e.target.value,index)} ref={(e)=>(checkRef.current[index]=e)} 
+              autoFocus className="rl__checkbox" onKeyDown={(e)=>send(e)} />:
+               <input key={index} type="text" maxLength={1} value={checknum[index]}
+               onChange={(e)=>changeCheckNum(e.target.value,index)} ref={(e)=>(checkRef.current[index]=e)}
+               className="rl__checkbox" onKeyDown={(e)=>send(e)} />)}
+               </div>
+              <button className="rl__btn rl__btn--spe" onClick={clickCheck} ref={btnRef}
+              >驗證送出</button>
+              <div ref={errorInfRef} className="rl__errorInf">{inf}</div>
+              <div className="rl__toggle">沒收到驗證碼?<span onClick={reCheck}> 再寄一次</span></div>
+            </div>}
+            {(login === "reg_ok")&&
+            <div>
+              <div className="rl__title">恭喜您註冊成功！</div>
+              <div className="rl__inf">{inf}</div>
+              <button className="rl__btn rl__btn--spe" onClick={toLogin}
+              >返回登入頁</button>
             </div>}
           </div>
         </div>
