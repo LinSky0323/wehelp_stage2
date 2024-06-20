@@ -113,7 +113,7 @@ async def reg(request:Request):
 	email = body.get("email")
 	password = body.get("password")
 	res = check_checkNum(email,num)
-	if res.get("active") is 0:
+	if res.get("active") == 0:
 		return {"unactive":True}
 	elif res.get("active"):
 		try:
