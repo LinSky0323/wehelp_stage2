@@ -221,8 +221,10 @@ const R_L=()=>{
     let newnum = [...checknum]
     newnum[i]=value;
     setChecknum(newnum);
-    if(i<5){checkRef.current[i+1].focus()}
     newnum = null;
+    setTimeout(()=>{
+      if(i<5){checkRef.current[i+1].focus();console.log(value,i)}
+    },0)
   }
   if(rlWindow){
     return(
