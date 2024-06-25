@@ -157,7 +157,10 @@ const Booking=()=>{
         async function logBooking(){
             const token = localStorage.getItem("token")
             const res =await dispatch(fetchBooking(token))          //確認是否有正確登入使用者訊息並拿回資料
-            if(!res || res.error===true){
+            if(res===null){
+                return
+            }
+            else if(res.hasOwnProperty("error")){
                 return navigate("/")
             }
         }
