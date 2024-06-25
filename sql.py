@@ -8,7 +8,7 @@ pymysql.install_as_MySQLdb()
 
 #建立連線到mysql的engine
 #pool_recycle:讓connecttion pool時間到自動重建，避免過期遺失連線造成錯誤
-engine=create_engine("mysql://root:密碼@localhost/website",echo=False,pool_recycle=21600)  #可以加 echo_pool="debug" 去除錯
+engine=create_engine("mysql://root:y4hwong6@localhost/website",echo=False,pool_recycle=21600)  #可以加 echo_pool="debug" 去除錯
 Base=declarative_base()
 
 #事先定義好column類型

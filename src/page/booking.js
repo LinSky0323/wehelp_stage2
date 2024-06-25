@@ -56,6 +56,12 @@ const UserInf=()=>{
             setName(currentUser.name)
             setEmail(currentUser.email)
     },[currentUser])
+    const keyPhone=(e)=>{
+        const filter = (v)=>{
+            return v.replace(/\D/g,"")
+        }
+        setPhone(filter(e))
+    }
     return(
         <div className="booking__usercontainer"> 
             <div className="booking__item--header">您的聯絡資訊</div>
@@ -70,7 +76,7 @@ const UserInf=()=>{
             </div>
             <div className="booking__item--item">
             <label>手機號碼：</label>
-            <input className="inf__input" onChange={e=>setPhone(e.target.value)} value={phone}  type="text"/>
+            <input className="inf__input" onChange={e=>keyPhone(e.target.value)} value={phone}  type="text"/>
             </div>
             <div className="booking__item--footer">請保時手機溝通，準時到達，導覽人員將用手機跟您聯絡，務必留下正確的聯絡方式。</div>
         </div>
@@ -86,9 +92,11 @@ const PayInf=()=>{
             const v2 = v1.match(/.{1,4}/g)?.join("-")||""           // .匹配所有 {1,4}匹配1~4個. ?讓match失敗回傳undefined ||"" 讓undefined跳過join回傳空字串 >> 每4個數字加個"-"
             return v2
         }
-        setTimeout(()=>{
-            setCardNum(fixNum(e))
-        },0)
+        if(e.length>=0 && e.length <20){
+            setTimeout(()=>{
+                setCardNum(fixNum(e))
+            },0)
+        }
     }
     const keyCardDate = (e)=>{
         const fixData=(v)=>{
@@ -96,9 +104,11 @@ const PayInf=()=>{
             const v2 = v1.match(/.{1,2}/g)?.join("/")||""
             return v2
         }
-        setTimeout(()=>{
-            setCardDate(fixData(e))
-        },0)
+        if(e.length>=0 && e.length<6){
+            setTimeout(()=>{
+                setCardDate(fixData(e))
+            },0)
+        }
     }
     const keyCardPassword=(e)=>{
         const filter = (v)=>{
