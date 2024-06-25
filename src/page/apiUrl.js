@@ -7,6 +7,7 @@ const AttractionList = URL+"api/attractions"
 const SpotUrl = URL+"api/attraction/"
 const RegUrl = URL+"api/user"
 const UserUrl = URL+"api/user/auth"
+const BookingUrl = URL+"api/booking"
 
 
-export{imgUrl,MrtUrl,AttractionList,SpotUrl,RegUrl,UserUrl} 
+export{imgUrl,MrtUrl,AttractionList,SpotUrl,RegUrl,UserUrl,BookingUrl} 

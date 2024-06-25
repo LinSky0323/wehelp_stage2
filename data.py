@@ -1,5 +1,5 @@
 import json,re,random
-from sql import push_attraction,get_attraction_by_id,get_mrt_list,get_some_data,reg_user,login_user,create_checkNum,get_active
+from sql import push_attraction,get_attraction_by_id,get_mrt_list,get_some_data,reg_user,login_user,create_checkNum,get_active,create_booking_list,get_booking_list,del_booking_list
 from mail import send_check_email
 import jwt
 from datetime import datetime,timezone,timedelta
@@ -90,13 +90,38 @@ def create_send_checkNum(email):
     create_checkNum(email,rand)
     send_check_email(email,rand)
 
-#驗證照號及驗證碼
+#驗證帳號及驗證碼
 def check_checkNum(email,num):
     data=get_active(email,num)
     return data
 
+#增修booking
+def create_booking(userId,attractionId,date,time,price):
+    try:
+        data = create_booking_list(userId,attractionId,date,time,price)
+        return data
+    except:
+        return{"error":True,"message":"連接資料庫發生錯誤"}
 
-
+#取得booking
+def get_booking(userId):
+    try:
+        data = get_booking_list(userId)
+        if not data:
+            return data
+        data[1].images = data[1].images.split(",")
+        return {"data":{"attraction":{"id":data[1].id,"name":data[1].name,"address":data[1].address,"image":data[1].images[0]}},
+                "date":data[0].date,"time":data[0].time,"price":data[0].price}
+    except:
+        return{"error":True,"message":"連接資料庫發生錯誤"}
+    
+#刪除booking
+def del_booking(userId):
+    try:
+        data = del_booking_list(userId)
+        return data
+    except:
+        return{"error":True,"message":"連接資料庫發生錯誤"}
 
 
 

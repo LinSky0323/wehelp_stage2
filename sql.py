@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine,String,ForeignKey,Text,distinct,func,desc,Index,Boolean,Integer,text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker,Mapped,mapped_column
+from sqlalchemy.orm import sessionmaker,Mapped,mapped_column,relationship
 from sqlalchemy.pool import NullPool
 from typing_extensions import Annotated
 import pymysql
@@ -43,6 +43,19 @@ class User(Base):
     password:Mapped[str]=mapped_column(String(255),nullable=False)
     active:Mapped[bool]=mapped_column(Boolean,default=False,nullable=False)
     ckeckNum:Mapped[int]=mapped_column(Integer,nullable=True,default=0)
+
+class BookingList(Base):
+    __tablename__ = "booking"
+
+    id:Mapped[int_pk]
+    user_id:Mapped[int]=mapped_column(Integer,ForeignKey("user.id"),nullable=False,index=True)
+    attraction_id:Mapped[int]=mapped_column(Integer,ForeignKey("attraction.id"),nullable=False)
+    date:Mapped[str]=mapped_column(String(255),nullable=False)
+    time:Mapped[str]=mapped_column(String(255),nullable=False)
+    price:Mapped[int]=mapped_column(Integer,nullable=False)
+
+    attraction:Mapped[Attraction] = relationship()
+    user:Mapped[User] = relationship()
 
 #建立session
 Base.metadata.create_all(engine)
@@ -126,4 +139,31 @@ def get_active(email,num):
     session.commit()
     session.close()
     return {"active":data}
+
+#新建Booking List
+def create_booking_list(userId,attractionId,date,time,price):
+    data = session.query(BookingList).filter(BookingList.user_id==userId).first()
+    item = BookingList(user_id=userId,attraction_id=attractionId,date=date,time=time,price=price)
+    if data:
+        session.query(BookingList).filter(BookingList.user_id==userId).update({BookingList.attraction_id:attractionId,BookingList.date:date,BookingList.time:time,BookingList.price:price})
+        session.commit()
+        session.close()
+    else:
+        session.add(item)
+        session.commit()
+        session.close()
+    return {"ok":True}
+    
+#取得 Booling List
+def get_booking_list(userId):
+    data = session.query(BookingList,Attraction).join(BookingList.attraction).filter(BookingList.user_id==userId).first()
+    session.close()
+    return data
+
+#刪除 Booking List
+def del_booking_list(userId):
+    session.query(BookingList).filter(BookingList.user_id==userId).delete()
+    session.commit()
+    session.close()
+    return {"ok":True}
 

@@ -1,7 +1,7 @@
 from fastapi import *
 from fastapi.responses import FileResponse,JSONResponse
 from typing import Annotated
-from data import get_data_by_id,get_some_mrt,get_data,register,login,get_current_user,create_send_checkNum,check_checkNum
+from data import get_data_by_id,get_some_mrt,get_data,register,login,get_current_user,create_send_checkNum,check_checkNum,get_booking,del_booking,create_booking
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -29,7 +29,7 @@ async def attraction(request: Request, id: int):
 	# return FileResponse("./static/attraction.html", media_type="text/html")
 @app.get("/booking", include_in_schema=False)
 async def booking(request: Request):
-	return FileResponse("./static/booking.html", media_type="text/html")
+	return FileResponse("./build/index.html", media_type="text/html")
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
@@ -88,7 +88,7 @@ async def get_user(request:Request):
 		data = get_current_user(authorization.split(" ")[1])
 		return data
 	except:
-		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
+		return None
 
 
 @app.put("/api/user/auth")
@@ -106,8 +106,8 @@ async def log(request:Request):
 	except:
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
 
-@app.put("/api/user")
-async def reg(request:Request):
+@app.put("/api/user")		#多做：確認驗證碼是否正確，是就將active改成True並直接登入
+async def checknumber(request:Request):
 	body = await request.json()
 	num = body.get("num")
 	email = body.get("email")
@@ -126,7 +126,7 @@ async def reg(request:Request):
 		except:
 			return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
 
-@app.post("/api/user/auth")
+@app.post("/api/user/auth")	#多做：重新發一次驗證碼
 async def recheck(request:Request):
 	body = await request.json()
 	email = body.get("email")
@@ -136,3 +136,54 @@ async def recheck(request:Request):
 	except:
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
 
+@app.get("/api/booking")
+async def get_Booking(request:Request):
+	authorization:str = request.headers.get("Authorization")
+	if not authorization or not authorization.startswith("Bearer "):
+		return JSONResponse(status_code=403,content={"error":True,"message":"未登入系統"})
+	try:
+		user = get_current_user(authorization.split(" ")[1])
+		if not user:
+			return JSONResponse(status_code=403,content={"error":True,"message":"未登入系統"})
+		
+		data = get_booking(user["data"]["id"])
+		return data
+	except:
+		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
+	
+@app.post("/api/booking")
+async def create_Booking(request:Request):
+	authorization:str = request.headers.get("Authorization")
+	body = await request.json()
+	attractionId=body.get("attractionId")
+	date=body.get("date")
+	time=body.get("time")
+	price=body.get("price")
+	if not authorization or not authorization.startswith("Bearer "):
+		return JSONResponse(status_code=403,content={"error":True,"message":"未登入系統"})
+	try:
+		user = get_current_user(authorization.split(" ")[1])
+		if not user:
+			return JSONResponse(status_code=403,content={"error":True,"message":"未登入系統"})
+		print(user["data"]["id"],attractionId,date,time,price)
+		data = create_booking(user["data"]["id"],attractionId,date,time,price)
+		if data.get("error"):
+			return JSONResponse(status_code=400,content=data)
+		return data
+	except:
+		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
+
+@app.delete("/api/booking")
+async def del_Booking(request:Request):
+	authorization:str = request.headers.get("Authorization")
+	if not authorization or not authorization.startswith("Bearer "):
+		return JSONResponse(status_code=403,content={"error":True,"message":"未登入系統"})
+	try:
+		user = get_current_user(authorization.split(" ")[1])
+		if not user:
+			return JSONResponse(status_code=403,content={"error":True,"message":"未登入系統"})
+		data = del_booking(user["data"]["id"])
+		return data
+	except:
+		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
+	

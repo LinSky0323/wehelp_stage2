@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { MrtUrl,AttractionList,SpotUrl,UserUrl } from "../../page/apiUrl";
+import { MrtUrl,AttractionList,SpotUrl,UserUrl,BookingUrl } from "../../page/apiUrl";
 
 
 
@@ -18,7 +18,9 @@ const attractionStore = createSlice({
         //顯示登入窗
         rlWindow:false,
         //當前使用者資訊
-        currentUser:{}
+        currentUser:{},
+        //購物車
+        bookingList:{}
     },
     reducers:{
         setMrtList(state,action){
@@ -57,11 +59,17 @@ const attractionStore = createSlice({
         },
         clearCurrentUser(state){
             state.currentUser = {}
+        },
+        setBookingList(state,action){
+            state.bookingList = action.payload
+        },
+        delBookingList(state){
+            state.bookingList = {}
         }
 }})
 
 //異步執行
-const {setMrtList,resetAttraction,addAttractionList,setAnotherList,setAnotherKeyword,getSpot,clearSpot,openRL,closeRL,setCurrentUser,clearCurrentUser} = attractionStore.actions
+const {setMrtList,resetAttraction,addAttractionList,setAnotherList,setAnotherKeyword,getSpot,clearSpot,openRL,closeRL,setCurrentUser,clearCurrentUser,setBookingList,delBookingList} = attractionStore.actions
 const fetchMrtList=()=>{
     return async (dispatch)=>{
         const res = await fetch(MrtUrl);
@@ -112,8 +120,22 @@ const fetchUser=(token)=>{
         
     }
 }
+const fetchBooking=(token)=>{
+    return async(dispatch)=>{
+        const res = await fetch(BookingUrl,{method:"GET",headers:{"Authorization":"Bearer "+token}})
+        const data = await res.json()
+        if(data){
+            dispatch(setBookingList(data))
+            return data
+        }
+        else{
+            dispatch(delBookingList())
+            return data
+        }
+    }
+}
 //導出
-export {fetchMrtList,resetAttraction,fetchNextData,fetchAnotherList,fetchSpot,clearSpot,openRL,closeRL,fetchUser,clearCurrentUser}
+export {fetchMrtList,resetAttraction,fetchNextData,fetchAnotherList,fetchSpot,clearSpot,openRL,closeRL,fetchUser,clearCurrentUser,fetchBooking,delBookingList}
 
 const reducer = attractionStore.reducer
 

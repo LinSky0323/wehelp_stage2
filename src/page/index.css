@@ -19,6 +19,20 @@ body{
   margin-top:54px;
   flex:1;
 }
+.booking__container{
+  width:100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top:54px;
+  flex:1;
+  color:rgba(102,102,102,1);
+  font-size: 16px;
+  font-weight: 400;
+}
+.booking__container--nofull{
+  flex:0;
+}
 .header__homepage{
   cursor: pointer;
   color:#448899;
@@ -243,7 +257,11 @@ body{
   display: flex;
   justify-content: center;
 }
+.footer--full{
+  flex:1;
+}
 .footer div{
+  color:white;
   padding-top:40px ;
   background-color: transparent;
 }
@@ -377,6 +395,7 @@ body{
   margin-left: 5px;
 }
 .spot__booking--btn{
+  cursor: pointer;
   color:white;
   background-color: rgba(68,136,153,1); 
   padding: 10px 20px 10px 20px;
@@ -567,6 +586,114 @@ body{
   color:red;
   border-radius: 5px;
 }
+.booking__hello{
+  width: 1000px;
+  margin-top:40px;
+  font-size: 19px;
+  font-weight: 700;
+}
+.booking__noinf{
+  margin:30px 0px 40px 0px;
+}
+.booking__title{
+  width: 980px;
+  margin: 0 auto;
+  margin-top: 30px;
+  margin-bottom: 40px;
+  display: flex;
+}
+.booking__img{
+  width: 250px;
+  height: 200px;
+  margin-right: 30px;
+}
+.booking__img img{
+  width:100%;
+  height:200px;
+  object-fit: cover;
+}
+.booking__inf{
+  width:700px;
+  position: relative;
+}
+.booking__name{
+  font-weight: 700;
+  color:rgba(68,136,153,1);
+  margin-bottom:20px ;
+  line-height: 24px;
+  
+}
+.booking__del{
+  position: absolute;
+  top:0px;
+  right:0px;
+  cursor: pointer;
+}
+.booking__item{
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.booking__item span{
+  font-weight: 400;
+  margin-left: 5px;
+}
+.booking__usercontainer{
+  width: 980px;
+  margin: 40px;
+}
+.booking__item--header{
+  font-size: 19px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.booking__item--item{
+  margin-bottom: 15px;
+}
+.booking__item--item input{
+
+  font-weight: 500;
+  font-size: 16px;
+  padding:6px 10px 6px 10px ;
+  border: 1px solid rgba(232,232,232,1);
+  border-radius: 5px;
+  font-family: inherit;
+}
+.inf__input{
+  color: rgba(0,0,0,1);
+}
+.booking__item--footer{
+  font-weight: 700;
+}
+.booking__paycontainer{
+  width: 980px;
+  margin: 40px;
+}
+.pay__input{
+  color:rgba(117,117,117,1)
+}
+.booking__checkcontainer{
+  width: 980px;
+  margin: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.booking__checkprice{
+  font-weight: 700;
+  line-height: 20px;
+}
+.booking__checkbtn{
+  cursor: pointer;
+  color:white;
+  background-color: rgba(68,136,153,1); 
+  padding: 10px 20px 10px 20px;
+  border-radius: 5px;
+  font-size: 19px;
+  font-weight: 400;
+  border: none;
+  margin:22px 0px 22px 0px;
+  line-height: 16px;
+}
 @media(max-width:1200px){
   .header{
       width:100%;
@@ -597,6 +724,32 @@ body{
   
 }
 
+@media(max-width:1000px){
+  .booking__hello{
+    width:100%;
+  }
+  .booking__title{
+    width:100%;
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+  .booking__inf{
+    width:calc(100% - 280px);
+  }
+  .booking__usercontainer{
+    width:calc(100% - 20px);
+  }
+  .booking__paycontainer{
+    width:calc(100% - 20px);
+  }
+  .booking__checkcontainer{
+    width:calc(100% - 20px);
+  }
+  .booking__titlecontainer{
+    width:calc(100% - 20px);
+  }
+}
+
 @media(max-width:800px){
   .spot__container{
     flex-direction: column;
@@ -619,9 +772,6 @@ body{
   .spot__booking--btn{
     margin-bottom: 15px;
   }
-  .header__container--border{
-    border:0;
-  }
   
 }
 
@@ -631,5 +781,25 @@ body{
   }
   .spot__img--container{
     height:350px;
+  }
+  .booking__title{
+    flex-direction: column;
+    margin-bottom: 30px;
+  }
+  .booking__inf{
+    width:100%;
+  }
+  .booking__img{
+    width:100%;
+    margin-bottom: 30px;
+    margin-right: 0;
+  }
+  .booking__del{
+    top:auto;
+    bottom: 0px;
+    right:0px;
+  }
+  .booking__item--small{
+    margin-bottom: 30px;
   }
 }

@@ -2,14 +2,16 @@ import "./index.css"
 import { useEffect, useState,useRef } from "react"
 import { Outlet } from "react-router-dom"
 import { useDispatch,useSelector } from "react-redux"
-import { fetchUser,clearCurrentUser, openRL, closeRL,resetAttraction } from "../store/modules/store"
+import { fetchUser,clearCurrentUser, openRL, closeRL,resetAttraction, delBookingList } from "../store/modules/store"
 import { useLocation,useNavigate } from "react-router-dom"
 //統一修改圖片路境，為了應對開發環境跟build的靜態物件
 import {imgUrl,RegUrl,UserUrl} from "./apiUrl"
 
 const Footer=()=>{
+  const location = useLocation()
+  const {bookingList} = useSelector(state=>state.attractions)
     return (
-      <div className="footer" id="footer"><div>COPYRIGHT © 2021 台北一日遊</div></div>
+      <div className={`footer ${(location.pathname.includes("booking")&&!bookingList.data) && "footer--full"} `} id="footer"><div>COPYRIGHT © 2021 台北一日遊</div></div>
     )
   }
 
@@ -110,7 +112,6 @@ const R_L=()=>{
         })
         })
       const data = await res.json();
-      console.log(data)
       if(data.hasOwnProperty("error")){
         errorInfRef.current.classList.add("rl__errorInf--open")
         setLogin("reg_error")
@@ -156,6 +157,7 @@ const R_L=()=>{
   const signout=()=>{         //函式：發送登出
     localStorage.removeItem("token")
     dispatch(clearCurrentUser())
+    dispatch(delBookingList())    //順手清空購物車
     dispatch(closeRL())
   }
   const send=(e)=>{           //函試：按enter等於點btn
@@ -223,7 +225,7 @@ const R_L=()=>{
     setChecknum(newnum);
     newnum = null;
     setTimeout(()=>{
-      if(i<5){checkRef.current[i+1].focus();console.log(value,i)}
+      if(i<5){checkRef.current[i+1].focus()}
     },0)
   }
   if(rlWindow){
@@ -329,13 +331,21 @@ const Header=()=>{
       dispatch(resetAttraction())
       navigate("/")
     }
+    const clickBooking = ()=>{  //登入>跳轉booking，沒登入>跳出登入頁
+      if(currentUser.id){
+        navigate("/booking")
+        return
+      }
+      dispatch(openRL())
+      return
+    }
     return(
     <div className="body">
         <div className={`header__container ${(location.pathname.includes("attraction")||location.pathname.includes("booking")) && "header__container--border"} `}>
             <div className="header">
             <div className="header__homepage" onClick={toHome}>台北一日遊</div>
             <div className="header__login">
-                <span>預定行程</span>
+                <span onClick={clickBooking}>預定行程</span>
                 <span onClick={clickRL}>{currentUser.name?"登出帳號":"登入/註冊"}</span>
             </div>
             </div>
