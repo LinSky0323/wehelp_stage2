@@ -76,7 +76,7 @@ const UserInf=()=>{
             </div>
             <div className="booking__item--item">
             <label>手機號碼：</label>
-            <input className="inf__input" onChange={e=>keyPhone(e.target.value)} value={phone}  type="text"/>
+            <input className="inf__input" onChange={e=>keyPhone(e.target.value)} value={phone}  type="text" maxLength={10}/>
             </div>
             <div className="booking__item--footer">請保時手機溝通，準時到達，導覽人員將用手機跟您聯絡，務必留下正確的聯絡方式。</div>
         </div>
@@ -152,7 +152,7 @@ const CheckPay=()=>{
 const Booking=()=>{
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const {bookingList,currentUser} =useSelector(state=>state.attractions)
+    const {bookingList} =useSelector(state=>state.attractions)
     useEffect(()=>{
         async function logBooking(){
             const token = localStorage.getItem("token")
@@ -165,7 +165,7 @@ const Booking=()=>{
             }
         }
         logBooking()
-    },[dispatch,navigate,currentUser])                              //監控currentUser，確保登出能直接跳轉
+    },[dispatch,navigate])                              //監控currentUser，確保登出能直接跳轉
     if(bookingList && bookingList.data){
         return(
             <div className="booking__container">

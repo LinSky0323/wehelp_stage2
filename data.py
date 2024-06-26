@@ -85,10 +85,10 @@ def get_current_user(token):
         return None
 
 #生成寄送驗證碼
-def create_send_checkNum(email):
+def create_send_checkNum(email,name):
     rand = random.randint(100000,999999)
     create_checkNum(email,rand)
-    send_check_email(email,rand)
+    send_check_email(email,rand,name)
 
 #驗證帳號及驗證碼
 def check_checkNum(email,num):

@@ -73,7 +73,7 @@ async def reg(request:Request):
 		data = register(name,email,password)
 		if data.get("error"):
 			return JSONResponse(status_code=400,content=data)
-		create_send_checkNum(email)
+		create_send_checkNum(email,name)
 		return data
 	except:
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
@@ -130,8 +130,9 @@ async def checknumber(request:Request):
 async def recheck(request:Request):
 	body = await request.json()
 	email = body.get("email")
+	name = body.get("name")
 	try:
-		create_send_checkNum(email)
+		create_send_checkNum(email,name)
 		return {"recheck":"true"}
 	except:
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})

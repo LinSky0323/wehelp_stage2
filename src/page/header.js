@@ -30,6 +30,7 @@ const R_L=()=>{
   const btnRef = useRef(null)
   const spaceRef = useRef(null)
   const checkRef = useRef([])
+  const navigate = useNavigate()
   const clickRLclose=()=>{    //關閉登入框並重製裡面的資訊
     dispatch(closeRL())
     setLogin("login")
@@ -159,6 +160,9 @@ const R_L=()=>{
     dispatch(clearCurrentUser())
     dispatch(delBookingList())    //順手清空購物車
     dispatch(closeRL())
+    if(location.pathname.includes("booking")){
+      navigate("/")
+    }
   }
   const send=(e)=>{           //函試：按enter等於點btn
     if(e.key==="Enter"){
@@ -205,7 +209,8 @@ const R_L=()=>{
       const res = await fetch(UserUrl,{
         method:"POST",
         body:JSON.stringify({
-          "email":email
+          "email":email,
+          "name":username
         })
       })
       const data = await res.json()
