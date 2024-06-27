@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine,String,ForeignKey,Text,distinct,func,desc,Index,Boolean,Integer,text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker,Mapped,mapped_column
+from sqlalchemy.orm import sessionmaker,Mapped,mapped_column,relationship
 from sqlalchemy.pool import NullPool
 from typing_extensions import Annotated
 import pymysql
@@ -8,7 +8,7 @@ pymysql.install_as_MySQLdb()
 
 #建立連線到mysql的engine
 #pool_recycle:讓connecttion pool時間到自動重建，避免過期遺失連線造成錯誤
-engine=create_engine("mysql://root:密碼@localhost/website",echo=False,pool_recycle=28800)  #可以加 echo_pool="debug" 去除錯
+engine=create_engine("mysql://root:y4hwong6@localhost/website",echo=False,pool_recycle=21600)  #可以加 echo_pool="debug" 去除錯
 Base=declarative_base()
 
 #事先定義好column類型
@@ -43,6 +43,19 @@ class User(Base):
     password:Mapped[str]=mapped_column(String(255),nullable=False)
     active:Mapped[bool]=mapped_column(Boolean,default=False,nullable=False)
     ckeckNum:Mapped[int]=mapped_column(Integer,nullable=True,default=0)
+
+class BookingList(Base):
+    __tablename__ = "booking"
+
+    id:Mapped[int_pk]
+    user_id:Mapped[int]=mapped_column(Integer,ForeignKey("user.id"),nullable=False,index=True)
+    attraction_id:Mapped[int]=mapped_column(Integer,ForeignKey("attraction.id"),nullable=False)
+    date:Mapped[str]=mapped_column(String(255),nullable=False)
+    time:Mapped[str]=mapped_column(String(255),nullable=False)
+    price:Mapped[int]=mapped_column(Integer,nullable=False)
+
+    attraction:Mapped[Attraction] = relationship()
+    user:Mapped[User] = relationship()
 
 #建立session
 Base.metadata.create_all(engine)
@@ -110,20 +123,47 @@ def login_user(email,password):
     if not pw:
         return {"error":True,"message":"密碼打錯喔~~ 你是不是打錯字咧"}
     session.close()
-    return {"id":pw.id,"name":pw.name,"email":pw.email}
+    return {"id":pw.id,"name":pw.name,"email":pw.email,"active":pw.active}
 
-# #修改隨機驗證碼
-# def create_checkNum(email,num):
-#     session.query(User).filter(User.email==email).update({User.ckeckNum:num})
-#     session.commit()
-#     session.close()
+#修改隨機驗證碼
+def create_checkNum(email,num):
+    session.query(User).filter(User.email==email).update({User.ckeckNum:num})
+    session.commit()
+    session.close()
 
-# #確認是否一致>啟用
-# def get_active(email,num):
-#     data=session.query(User).filter(User.email == email,User.ckeckNum == num).update({User.active:True})
-#     if data:
-#         session.query(User).filter(User.email == email,User.active == True).update({User.ckeckNum:0})
-#     session.commit()
-#     session.close()
-#     return {"active":data}
+#確認是否一致>啟用
+def get_active(email,num):
+    data=session.query(User).filter(User.email == email,User.ckeckNum == num).update({User.active:True})
+    if data:
+        session.query(User).filter(User.email == email,User.active == True).update({User.ckeckNum:0})
+    session.commit()
+    session.close()
+    return {"active":data}
+
+#新建Booking List
+def create_booking_list(userId,attractionId,date,time,price):
+    data = session.query(BookingList).filter(BookingList.user_id==userId).first()
+    item = BookingList(user_id=userId,attraction_id=attractionId,date=date,time=time,price=price)
+    if data:
+        session.query(BookingList).filter(BookingList.user_id==userId).update({BookingList.attraction_id:attractionId,BookingList.date:date,BookingList.time:time,BookingList.price:price})
+        session.commit()
+        session.close()
+    else:
+        session.add(item)
+        session.commit()
+        session.close()
+    return {"ok":True}
+    
+#取得 Booling List
+def get_booking_list(userId):
+    data = session.query(BookingList,Attraction).join(BookingList.attraction).filter(BookingList.user_id==userId).first()
+    session.close()
+    return data
+
+#刪除 Booking List
+def del_booking_list(userId):
+    session.query(BookingList).filter(BookingList.user_id==userId).delete()
+    session.commit()
+    session.close()
+    return {"ok":True}
 
