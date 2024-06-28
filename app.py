@@ -4,6 +4,7 @@ from typing import Annotated
 from data import get_data_by_id,get_some_mrt,get_data,register,login,get_current_user,create_send_checkNum,check_checkNum,get_booking,del_booking,create_booking
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+import threading
 
 
 app=FastAPI()
@@ -73,7 +74,8 @@ async def reg(request:Request):
 		data = register(name,email,password)
 		if data.get("error"):
 			return JSONResponse(status_code=400,content=data)
-		create_send_checkNum(email,name)
+		Send = threading.Thread(target=create_send_checkNum,args=(email,name))
+		Send.start()
 		return data
 	except:
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
