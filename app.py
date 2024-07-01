@@ -1,10 +1,11 @@
 from fastapi import *
 from fastapi.responses import FileResponse,JSONResponse
-from typing import Annotated
+from typing import Annotated,List
 from data import get_data_by_id,get_some_mrt,get_data,register,login,get_current_user,create_send_checkNum,check_checkNum,get_booking,del_booking,create_booking
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import threading
+
 
 
 app=FastAPI()

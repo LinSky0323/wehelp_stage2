@@ -21,7 +21,8 @@ const R_L=()=>{
   const [username,setUsername] = useState("")
   const [email,setEmail] = useState("")
   const [password,setPassword] = useState("")
-  const [checknum,setChecknum] = useState(new Array(6).fill(''))
+  const [_inputChecknum,setinputChecknum] = useState(new Array(6).fill('')) // eslint-disable-line no-unused-vars
+  const [innerChecknum,setInnerChecknum] = useState(new Array(6).fill(''))
   const [inf,setInf] = useState("")             //訊息
   const dispatch = useDispatch()
   const {rlWindow,currentUser} = useSelector(state=>state.attractions)  //是否顯示登入框&當前使用者資訊
@@ -31,6 +32,8 @@ const R_L=()=>{
   const spaceRef = useRef(null)
   const checkRef = useRef([])
   const navigate = useNavigate()
+  let isCompoing = false
+
   const clickRLclose=()=>{    //關閉登入框並重製裡面的資訊
     dispatch(closeRL())
     setLogin("login")
@@ -172,8 +175,8 @@ const R_L=()=>{
   const clickCheck=()=>{      //函試：送出驗證碼
     async function checkNum(){
       let num = "";
-      for(let i in checknum){
-        num+=checknum[i]
+      for(let i in innerChecknum){
+        num+=innerChecknum[i]
       }
       const res = await fetch(RegUrl,{
         method:"PUT",
@@ -199,7 +202,7 @@ const R_L=()=>{
           setLogin("login")
         },3000)
       }
-      setChecknum(new Array(6).fill(''))
+      setInnerChecknum(new Array(6).fill(''))
       checkRef.current[0].focus()
     }
     checkNum()
@@ -224,15 +227,46 @@ const R_L=()=>{
     }
     recheck()
   }
-  const changeCheckNum=(value,i)=>{       //函試：6格驗證碼的修改
-    let newnum = [...checknum]
-    newnum[i]=value;
-    setChecknum(newnum);
-    newnum = null;
-    setTimeout(()=>{
-      if(i<5){checkRef.current[i+1].focus()}
-    },0)
+
+  const handleComposition=(e)=>{
+    if(e.type === "compositionend"){
+      return
+      // 這段其實沒用，根本進不到end 
+      // console.log(123)
+      // setInnerChecknum(e.target.value)
+      // isCompoing = false
+      // this.setState({ innerChecknum: e.target.value })
+    }
+    else if (e.type === "compositionupdate"){
+      isCompoing = true
+      // this.setState({ inputChecknum: e.target.value })
+    }
   }
+  const changeCheckNum=(e,i)=>{ 
+    // if(!isCompoing){      //函試：6格驗證碼的修改
+    // let newnum = [...innerChecknum]
+    // newnum[i]=value;
+    // setInnerChecknum(newnum);
+    // console.log("CHANGE：輸入值:"+value)
+    // if(i<5){checkRef.current[i+1].focus();console.log("我移動了")}
+    // newnum = null;
+    // }
+    let newnum = [...innerChecknum]
+    newnum[i]=e.target.value;
+    if (!isCompoing) {
+      setInnerChecknum(newnum)
+      setinputChecknum(newnum)
+      if(i<5){checkRef.current[i+1].focus()}
+      // this.setState({
+      //   inputChecknum: e.target.value,
+      //   innerChecknum: e.target.value,
+      // })
+    } else {
+      setinputChecknum(newnum)
+      // this.setState({ inputValue: e.target.value })
+    }
+  }
+  
   if(rlWindow){
     return(
       <div className="rl__background">
@@ -294,11 +328,13 @@ const R_L=()=>{
               <div className="rl__title">第一次登入請輸入驗證碼</div>
               <div className="rl__checkboxcontainer">
               {[0,1,2,3,4,5].map((item,index)=>index===0?
-              <input key={index} type="text" maxLength={1} value={checknum[index]}
-              onChange={(e)=>changeCheckNum(e.target.value,index)} ref={(e)=>(checkRef.current[index]=e)} 
-              autoFocus className="rl__checkbox" onKeyDown={(e)=>send(e)} />:
-               <input key={index} type="text" maxLength={1} value={checknum[index]}
-               onChange={(e)=>changeCheckNum(e.target.value,index)} ref={(e)=>(checkRef.current[index]=e)}
+              <input key={index} type="text" maxLength={1} value={innerChecknum[index]}
+              onCompositionStart={e=>handleComposition(e)} onCompositionUpdate={e=>handleComposition(e)} onCompositionEnd={e=>handleComposition(e)} 
+              onChange={(e)=>changeCheckNum(e,index)} ref={(e)=>(checkRef.current[index]=e)}
+              autoFocus className="rl__checkbox" onKeyDown={(e)=>send(e)}  />:
+               <input key={index} type="text" maxLength={1} value={innerChecknum[index]}
+               onCompositionStart={e=>handleComposition(e)} onCompositionUpdate={e=>handleComposition(e)} onCompositionEnd={e=>handleComposition(e)} 
+               onChange={(e)=>changeCheckNum(e,index)} ref={(e)=>(checkRef.current[index]=e)}
                className="rl__checkbox" onKeyDown={(e)=>send(e)} />)}
                </div>
               <button className="rl__btn rl__btn--spe" onClick={clickCheck} ref={btnRef}
