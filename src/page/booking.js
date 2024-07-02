@@ -1,10 +1,9 @@
-import { useEffect, useState,} from "react"
+import { useEffect, useState,useRef,createContext,useContext} from "react"
 import { useDispatch,useSelector } from "react-redux"
 import { fetchBooking,delBookingList } from "../store/modules/store"
 import { useNavigate } from "react-router-dom"
 //統一修改圖片路境，為了應對開發環境跟build的靜態物件
-import {imgUrl,BookingUrl} from "./apiUrl"
-
+import {imgUrl,BookingUrl,OrderUrl,APPID,APPKEY} from "./apiUrl"
 
 const BookingTitle=()=>{
     const dispatch = useDispatch()
@@ -47,15 +46,15 @@ const NoBooking = ()=>{
     )
 }
 
+const UserContext = createContext()
+
 const UserInf=()=>{
     const {currentUser} = useSelector(state=>state.attractions)
-    const [name,setName] = useState("")
-    const [email,setEmail] = useState("")
-    const [phone,setPhone] = useState("")
+    const { name, email, phone, setName, setEmail, setPhone } = useContext(UserContext)
     useEffect(()=>{            
             setName(currentUser.name)
             setEmail(currentUser.email)
-    },[currentUser])
+    },[currentUser,setName,setEmail])
     const keyPhone=(e)=>{
         const filter = (v)=>{
             return v.replace(/\D/g,"")
@@ -63,76 +62,96 @@ const UserInf=()=>{
         setPhone(filter(e))
     }
     return(
-        <div className="booking__usercontainer"> 
-            <div className="booking__item--header">您的聯絡資訊</div>
-            <div className="booking__item--item">
-            <label>聯絡姓名：</label>
-            {/* value添加 ||"" 避免渲染前後可控不可控變化 */}
-            <input className="inf__input" onChange={e=>setName(e.target.value)} value={name||""}  type="text"/>     
+        
+            <div className="booking__usercontainer"> 
+                <div className="booking__item--header">您的聯絡資訊</div>
+                <div className="booking__item--item">
+                <label>聯絡姓名：</label>
+                {/* value添加 ||"" 避免渲染前後可控不可控變化 */}
+                <input className="inf__input" onChange={e=>setName(e.target.value)} value={name||""}  type="text"/>     
+                </div>
+                <div className="booking__item--item">
+                <label>聯絡信箱：</label>
+                <input className="inf__input" onChange={e=>setEmail(e.target.value)} value={email||""}  type="email"/>
+                </div>
+                <div className="booking__item--item">
+                <label>手機號碼：</label>
+                <input className="inf__input" onChange={e=>keyPhone(e.target.value)} value={phone}  type="text" maxLength={10}/>
+                </div>
+                <div className="booking__item--footer">請保時手機溝通，準時到達，導覽人員將用手機跟您聯絡，務必留下正確的聯絡方式。</div>
             </div>
-            <div className="booking__item--item">
-            <label>聯絡信箱：</label>
-            <input className="inf__input" onChange={e=>setEmail(e.target.value)} value={email||""}  type="email"/>
-            </div>
-            <div className="booking__item--item">
-            <label>手機號碼：</label>
-            <input className="inf__input" onChange={e=>keyPhone(e.target.value)} value={phone}  type="text" maxLength={10}/>
-            </div>
-            <div className="booking__item--footer">請保時手機溝通，準時到達，導覽人員將用手機跟您聯絡，務必留下正確的聯絡方式。</div>
-        </div>
+       
     )
 }
 const PayInf=()=>{
-    const [cardNum,setCardNum] = useState("")
-    const [cardDate,setCardDate] = useState("")
-    const [cardPassword,setCardPassword] = useState("")
-    const keyCardNum = (e)=>{
-        const fixNum=(value)=>{
-            const v1 = value.replace(/\D/g, '');                    // \D 匹配所有飛數字 g匹配全部(不會只有一次) >>把非數字換成""
-            const v2 = v1.match(/.{1,4}/g)?.join("-")||""           // .匹配所有 {1,4}匹配1~4個. ?讓match失敗回傳undefined ||"" 讓undefined跳過join回傳空字串 >> 每4個數字加個"-"
-            return v2
+    const card_number_ref = useRef()
+    const card_expiration_date_ref = useRef()
+    const card_ccv_ref = useRef()
+    useEffect(()=>{
+        if(window.TPDirect){
+            window.TPDirect.setupSDK(APPID, APPKEY, 'sandbox')
         }
-        if(e.length>=0 && e.length <20){
-            setTimeout(()=>{
-                setCardNum(fixNum(e))
-            },0)
+        else{
+            console.log("TAPPAY SDK ERROR")
+            return
         }
-    }
-    const keyCardDate = (e)=>{
-        const fixData=(v)=>{
-            const v1 = v.replace(/\D/g,"")
-            const v2 = v1.match(/.{1,2}/g)?.join("/")||""
-            return v2
+        let field = {
+            number: {
+                // css selector
+                element:card_number_ref.current ,
+                placeholder: '**** **** **** ****'
+            },
+            expirationDate: {
+                // DOM object
+                element:card_expiration_date_ref.current,
+                placeholder: 'MM / YY'
+            },
+            ccv: {
+                element:card_ccv_ref.current ,
+                placeholder: 'CVV'
+            }
         }
-        if(e.length>=0 && e.length<6){
-            setTimeout(()=>{
-                setCardDate(fixData(e))
-            },0)
-        }
-    }
-    const keyCardPassword=(e)=>{
-        const filter = (v)=>{
-            return v.replace(/\D/g,"")
-        }
-        setCardPassword(filter(e))
-    }
+            window.TPDirect.card.setup({
+            fields:field,
+            styles: {
+                // Style all elements
+                'input': {
+                    'color':'rgba(117,117,117,1)',
+                    'font-size':'16px',
+                    'border':'1px',
+                    'font-weight':'500',
+                    'font-family': '"Noto Sans TC", sans-serif'
+                },
+                
+                // style valid state
+                '.valid': {
+                    'color': 'green'
+                },
+                // style invalid state
+                '.invalid': {
+                    'color': 'red'
+                }
+            },
+            isMaskCreditCardNumber: true,
+            maskCreditCardNumberRange: {
+                beginIndex: 6, 
+                endIndex: 11
+            }
+        })
+},[])
+
+
     return(
         <div className="booking__paycontainer">
             <div className="booking__item--header">信用卡付費資訊</div>
             <div className="booking__item--item ">
-            <label>卡片號碼：</label>
-            <input className="pay__input" type="text" placeholder="**** **** **** ****"
-            onChange={e=>keyCardNum(e.target.value)} value={cardNum} maxLength={19}/>
-            </div>
-            <div className="booking__item--item">
-            <label>過期時間：</label>
-            <input className="pay__input"  type="text" placeholder="MM/YY"
-             onChange={e=>keyCardDate(e.target.value)} value={cardDate} maxLength={5}/>
+                <span>卡片號碼：</span><div className="tpfield" id="card-number" ref={card_number_ref}></div>
             </div>
             <div className="booking__item--item ">
-            <label>驗證密碼：</label>
-            <input className="pay__input"  type="text" placeholder="CVV"
-            onChange={e=>keyCardPassword(e.target.value)} value={cardPassword} maxLength={3}/>
+                <span>過期時間：</span><div className="tpfield" id="card-expiration-date" ref={card_expiration_date_ref}></div>
+            </div>
+            <div className="booking__item--item ">
+                <span>驗證密碼：</span><div className="tpfield" id="card-ccv" ref={card_ccv_ref}></div>
             </div>
         </div>
     )
@@ -140,10 +159,75 @@ const PayInf=()=>{
 
 const CheckPay=()=>{
     const {bookingList} =useSelector(state=>state.attractions)
+    const{name,email,phone} = useContext(UserContext)
+    const [disable,setDisable] = useState(true)
+    const btnRef = useRef(null)
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    window.TPDirect.card.onUpdate(function(update){
+        if(update.canGetPrime){
+            setDisable(false)
+            btnRef.current.classList.remove("booking__checkbtn--disable")
+        }
+        else{
+            setDisable(true)
+            btnRef.current.classList.add("booking__checkbtn--disable")
+        }
+    })
+    async function pay(){
+        const tappayStatus = window.TPDirect.card.getTappayFieldsStatus()
+        if (tappayStatus.canGetPrime === false) {
+            alert("請輸入正確的信用卡資訊")
+            return
+        }
+
+        window.TPDirect.card.getPrime((result) => {
+            if (result.status !== 0) {
+                alert('get prime error ' + result.msg)
+                return
+            }
+            const token = localStorage.getItem("token")
+            fetch(OrderUrl,{
+                method:"POST",
+                headers:{"Authorization":"Bearer "+token},
+                body:JSON.stringify({
+                    "prime":result.card.prime,
+                    "order":{
+                        "price":bookingList.price,
+                        "trip":{
+                            "attraction":{
+                                "id":bookingList.data.attraction.id,
+                                "name":bookingList.data.attraction.name,
+                                "address":bookingList.data.attraction.address,
+                                "image":bookingList.data.attraction.image
+                            },
+                            "date":bookingList.date,
+                            "time":bookingList.time
+                        },
+                        "contact":{
+                            "name":name,
+                            "email":email,
+                            "phone":phone
+                        }
+                    }
+                  })}).then(e=>e.json()).then(i=>{
+                    if(i.hasOwnProperty("error")){
+                        alert("付款失敗")
+                        return
+                    }
+                    dispatch(delBookingList());
+                    fetch(BookingUrl,{method:"DELETE",headers:{"Authorization":"Bearer "+token}});
+                    navigate(`/thankyou?number=${i.data.number}`);
+                  })
+    
+            // send prime to your server, to pay with Pay by Prime API .
+            // Pay By Prime Docs: https://docs.tappaysdk.com/tutorial/zh/back.html#pay-by-prime-api
+        })
+    }
     return(
         <div className="booking__checkcontainer">
             <div className="booking__checkprice">總價：新台幣 {bookingList.price} 元</div>
-            <button className="booking__checkbtn">確認訂購並附款</button>
+            <button className="booking__checkbtn booking__checkbtn--disable" onClick={pay} disabled={disable} ref={btnRef}>確認訂購並附款</button>
         </div>
     )
 }
@@ -153,6 +237,10 @@ const Booking=()=>{
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const {bookingList} =useSelector(state=>state.attractions)
+    const [name,setName] = useState("")
+    const [email,setEmail] = useState("")
+    const [phone,setPhone] = useState("")
+    const contextValue = { name, email, phone, setName, setEmail, setPhone };
     useEffect(()=>{
         async function logBooking(){
             const token = localStorage.getItem("token")
@@ -168,15 +256,17 @@ const Booking=()=>{
     },[dispatch,navigate])                              //監控currentUser，確保登出能直接跳轉
     if(bookingList && bookingList.data){
         return(
-            <div className="booking__container">
-                <BookingTitle/>
-                <div className="line"></div>
-                <UserInf/>
-                <div className="line"></div>
-                <PayInf/>
-                <div className="line"></div>
-                <CheckPay/>
-            </div>
+            <UserContext.Provider value={contextValue}>
+                <div className="booking__container">
+                    <BookingTitle/>
+                    <div className="line"></div>
+                    <UserInf />
+                    <div className="line"></div>
+                    <PayInf/>
+                    <div className="line"></div>
+                    <CheckPay/>
+                </div>
+            </UserContext.Provider>
         )
     }
     return(

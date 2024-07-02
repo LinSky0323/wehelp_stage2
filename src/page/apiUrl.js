@@ -8,6 +8,10 @@ const SpotUrl = URL+"api/attraction/"
 const RegUrl = URL+"api/user"
 const UserUrl = URL+"api/user/auth"
 const BookingUrl = URL+"api/booking"
+const OrderUrl = URL+"api/orders"
+
+const APPKEY = ""
+const APPID = 0
 
 
-export{imgUrl,MrtUrl,AttractionList,SpotUrl,RegUrl,UserUrl,BookingUrl} 
+export{imgUrl,MrtUrl,AttractionList,SpotUrl,RegUrl,UserUrl,BookingUrl,OrderUrl,APPKEY,APPID} 

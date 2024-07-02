@@ -1,9 +1,10 @@
 from fastapi import *
 from fastapi.responses import FileResponse,JSONResponse
 from typing import Annotated,List
-from data import get_data_by_id,get_some_mrt,get_data,register,login,get_current_user,create_send_checkNum,check_checkNum,get_booking,del_booking,create_booking
+from data import get_data_by_id,get_some_mrt,get_data,register,login,get_current_user,create_send_checkNum,check_checkNum,get_booking,del_booking,create_booking,create_orders,change_order_pay,get_order_number_list
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from tappay import fetch_to_tappay
 import threading
 
 
@@ -34,7 +35,7 @@ async def booking(request: Request):
 	return FileResponse("./build/index.html", media_type="text/html")
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
-	return FileResponse("./static/thankyou.html", media_type="text/html")
+	return FileResponse("./build/index.html", media_type="text/html")
 
 
 @app.get("/api/attractions")
@@ -190,4 +191,50 @@ async def del_Booking(request:Request):
 		return data
 	except:
 		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
-	
+
+@app.post("/api/orders")
+async def create_order(request:Request):
+	authorization:str = request.headers.get("Authorization")
+	if not authorization or not authorization.startswith("Bearer "):
+		return JSONResponse(status_code=403,content={"error":True,"message":"未登入系統"})
+	try:
+		user = get_current_user(authorization.split(" ")[1])
+		if not user:
+			return JSONResponse(status_code=403,content={"error":True,"message":"未登入系統"})
+	except:
+		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
+	body = await request.json()
+	prime = body.get("prime")
+	price = body["order"]["price"]
+	attractionId = body["order"]["trip"]["attraction"]["id"]
+	date = body["order"]["trip"]["date"]
+	time = body["order"]["trip"]["time"]
+	phone = body["order"]["contact"]["phone"]
+	userId = user["data"]["id"]
+	name = user["data"]["name"]
+	email = user["data"]["email"]
+	orderID = create_orders(userId,attractionId,date,time,price,phone)
+	if(orderID.get("error")):
+		return JSONResponse(status_code=500,content={"error":True,"message":"連接資料庫發生錯誤"})
+	oderId = orderID["ok"]
+	res = fetch_to_tappay(prime,attractionId,price,phone,name,email,oderId)
+	if res.get("error"):
+		return JSONResponse(status_code=400,content={"error":True,"message":res["message"]})
+	change_order_pay(oderId)
+	return res
+
+@app.get("/api/order/{orderNumber}")
+async def get_order_data(request:Request,orderNumber:str):
+	authorization:str = request.headers.get("Authorization")
+	if not authorization or not authorization.startswith("Bearer "):
+		return JSONResponse(status_code=403,content={"error":True,"message":"未登入系統"})
+	try:
+		user = get_current_user(authorization.split(" ")[1])
+		if not user:
+			return JSONResponse(status_code=403,content={"error":True,"message":"未登入系統"})
+	except:
+		return JSONResponse(status_code=500,content={"error":True,"message":"發生錯誤"})
+	name = user["data"]["name"]
+	email = user["data"]["email"]
+	data = get_order_number_list(orderNumber,name,email)
+	return data

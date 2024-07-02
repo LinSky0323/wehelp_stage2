@@ -3,6 +3,7 @@ import  Header  from "../page/header";
 import App from "../page/homepage"
 import Attraction from "../page/attraction";
 import Booking from "../page/booking";
+import Thankyou from "../page/thankyou";
 
 const router = createBrowserRouter([
     {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
             {
                 path:"booking",
                 element:<Booking/>
+            },
+            {
+                path:"thankyou",
+                element:<Thankyou/>
             }
         ]
     }

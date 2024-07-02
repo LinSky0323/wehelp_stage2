@@ -11,7 +11,7 @@ const Footer=()=>{
   const location = useLocation()
   const {bookingList} = useSelector(state=>state.attractions)
     return (
-      <div className={`footer ${(location.pathname.includes("booking")&&!bookingList.data) && "footer--full"} `} id="footer"><div>COPYRIGHT © 2021 台北一日遊</div></div>
+      <div className={`footer ${((location.pathname.includes("booking")||location.pathname.includes("thankyou"))&&!bookingList.data) && "footer--full"} `} id="footer"><div>COPYRIGHT © 2021 台北一日遊</div></div>
     )
   }
 
@@ -380,9 +380,10 @@ const Header=()=>{
       dispatch(openRL())
       return
     }
+
     return(
     <div className="body">
-        <div className={`header__container ${(location.pathname.includes("attraction")||location.pathname.includes("booking")) && "header__container--border"} `}>
+        <div className={`header__container ${(location.pathname.includes("attraction")||location.pathname.includes("booking")||location.pathname.includes("thank")) && "header__container--border"} `}>
             <div className="header">
             <div className="header__homepage" onClick={toHome}>台北一日遊</div>
             <div className="header__login">

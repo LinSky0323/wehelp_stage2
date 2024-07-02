@@ -57,6 +57,21 @@ class BookingList(Base):
     attraction:Mapped[Attraction] = relationship()
     user:Mapped[User] = relationship()
 
+class OrderList(Base):
+    __tablename__ = "orders"
+
+    id:Mapped[int_pk]
+    user_id:Mapped[int]=mapped_column(Integer,ForeignKey("user.id"),nullable=False,index=True)
+    attraction_id:Mapped[int]=mapped_column(Integer,ForeignKey("attraction.id"),nullable=False)
+    date:Mapped[str]=mapped_column(String(255),nullable=False)
+    time:Mapped[str]=mapped_column(String(255),nullable=False)
+    price:Mapped[int]=mapped_column(Integer,nullable=False)
+    pay:Mapped[bool]=mapped_column(Boolean,nullable=False,default=False)
+    phone:Mapped[str]=mapped_column(String(20),nullable=False)
+
+    attraction:Mapped[Attraction] = relationship()
+    user:Mapped[User] = relationship()
+
 #建立session
 Base.metadata.create_all(engine)
 Session=sessionmaker(bind=engine)
@@ -166,4 +181,26 @@ def del_booking_list(userId):
     session.commit()
     session.close()
     return {"ok":True}
+
+#新建order
+def create_order(userId,attractionId,date,time,price,phone):
+    item = OrderList(user_id=userId,attraction_id=attractionId,date=date,time=time,price=price,phone=phone)
+    session.add(item)
+    session.flush()
+    data=item.id
+    session.commit()
+    session.close()
+    return data
+
+#修改pay
+def change_pay(id):
+    session.query(OrderList).filter(OrderList.id==id).update({OrderList.pay:True})
+    session.commit()
+    session.close()
+    return {"ok":True}
+#找編號資料
+def search_order_list(id):
+    data = session.query(OrderList,Attraction).join(OrderList.attraction).filter(OrderList.id==id).first()
+    session.close()
+    return data
 

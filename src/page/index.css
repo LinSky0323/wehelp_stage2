@@ -648,6 +648,10 @@ body{
 }
 .booking__item--item{
   margin-bottom: 15px;
+  display: flex;
+}
+.booking__item--item span{
+  line-height: 38px;
 }
 .booking__item--item input{
 
@@ -694,6 +698,41 @@ body{
   margin:22px 0px 22px 0px;
   line-height: 16px;
 }
+.booking__checkbtn--disable{
+  color:rgb(174, 169, 169);
+  background-color: rgb(54, 110, 123); 
+}
+.tpfield{
+  height:24px;
+  width:223px;
+  font-weight: 500;
+  font-size: 16px;
+  padding:6px 10px 6px 10px ;
+  border: 1px solid rgba(232,232,232,1);
+  border-radius: 5px;
+}
+.thank__container{
+  margin-top: 54px;
+  font-size: 18px;
+  font-weight: 400;
+  height:300px;
+  display:flex;
+  flex-direction: column;
+  text-align: center;
+}
+.thank__title{
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+.thank__content{
+  line-height: 30px;
+}
+.thank__content span{
+  font-weight: 700;
+}
+
 @media(max-width:1200px){
   .header{
       width:100%;

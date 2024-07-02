@@ -1,5 +1,5 @@
 import json,re,random
-from sql import push_attraction,get_attraction_by_id,get_mrt_list,get_some_data,reg_user,login_user,create_checkNum,get_active,create_booking_list,get_booking_list,del_booking_list
+from sql import push_attraction,get_attraction_by_id,get_mrt_list,get_some_data,reg_user,login_user,create_checkNum,get_active,create_booking_list,get_booking_list,del_booking_list,create_order,change_pay,search_order_list
 from mail import send_check_email
 import jwt
 from datetime import datetime,timezone,timedelta
@@ -123,7 +123,55 @@ def del_booking(userId):
     except:
         return{"error":True,"message":"連接資料庫發生錯誤"}
 
+#新增order
+def create_orders(userId,attractionId,date,time,price,phone):
+    # cellphone = str(int(phone))
+    try:
+        data = create_order(userId,attractionId,date,time,price,phone)
+        return {"ok":data}
+    except:
+        return{"error":True,"message":"連接資料庫發生錯誤"}
 
+#修改pay
+def change_order_pay(id):
+    try:
+        data=change_pay(id)
+        return data
+    except:
+        return{"error":True,"message":"連接資料庫發生錯誤"}
+
+#取得編號訂單
+def get_order_number_list(number,name,email):
+    order_id=int(str(number)[-8:])
+    try:
+        data=search_order_list(order_id)
+        if not data:
+            return data
+        data[1].images = data[1].images.split(",")
+        return{
+            "data":{
+                "number":number,
+                "price":data[0].price,
+                "trip":{
+                    "attraction":{
+                        "id":data[1].id,
+                        "name":data[1].name,
+                        "address":data[1].address,
+                        "image":data[1].images[0]
+                    },
+                    "date":data[0].date,
+                    "time":data[0].time,
+                },
+                "contact":{
+                    "name":name,
+                    "email":email,
+                    "phone":data[0].phone,
+                },
+                "status":1
+            }
+        }
+    except:
+        return{"error":True,"message":"連接資料庫發生錯誤"}
 
 
 
