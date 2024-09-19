@@ -6,11 +6,11 @@
 
 ## [台北一日遊](http://18.176.26.217:8000/)
 
-Test User : oqkqrw8ulg@expressletter.net
+Test User : oqkqrw8ulg@expressletter.net  
 Password : 123456
 
-Credit Card : 4242-4242-4242-4242
-Date : 01/30
+Credit Card : 4242-4242-4242-4242  
+Date : 01/30  
 CVV : 123
 
 也可自行註冊帳密使用(註冊需驗證信箱)
