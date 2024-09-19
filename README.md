@@ -1,70 +1,49 @@
-# Getting Started with Create React App
+# Project - Taipei-Day-Trip
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> 本專案以台北資料大平台之台北景點作為資料根據，建立一個台北影點的一日導覽電商網站，內容包含：
 
-## Available Scripts
+1.首頁瀏覽、查詢景點 2.景點頁面查看景點資訊及預約資訊 3.連結 Tappay 金流服務，可用測試的信用卡進行付款功能
 
-In the project directory, you can run:
+## [台北一日遊](http://18.176.26.217:8000/)
 
-### `npm start`
+Test User : oqkqrw8ulg@expressletter.net
+Password : 123456
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Credit Card : 4242-4242-4242-4242
+Date : 01/30
+CVV : 123
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+也可自行註冊帳密使用(註冊需驗證信箱)
 
-### `npm test`
+## 使用技術
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- 前端用 React 編寫
+- 後端用 Python FastAPI
+- React router 路由控制
+- Redux 狀態控制
+- RESTful API 架構實踐專案功能
+- 基於 Figma 設計製作 UI 介面
+- 資料存於 MySQL，利用 index 加速搜尋
+- 使用 SQLAlchemy 操作 MySQL
+- 結合 TapPay SDK 建立付款功能
+- 專案建構於 AWS EC2
 
-### `npm run build`
+## 網頁功能
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 首頁瀏覽
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- 滾輪往下，一次 lazy loading 12 筆資料。或是於搜尋欄搜尋
+  ![r1](/readIMG/R1.png)
+- 點擊捷運站名，可搜尋相關景點
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 帳號管理
 
-### `npm run eject`
+- 使用者可註冊自己的帳號密碼已使用網站
+  ![r2](/readIMG/R2.png)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 行程預約
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- 使用者於登入後可以在景點頁面點擊預約選項
+  ![r3](/readIMG/R3.png)
+- 在預約頁面執行付款功能
+  ![r4](/readIMG/R4.png)
